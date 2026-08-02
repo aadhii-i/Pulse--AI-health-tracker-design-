@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse+ · Health Metric Screens</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: -apple-system, 'Helvetica Neue', sans-serif; background: #050508; display: flex; flex-direction: column; align-items: center; padding: 40px 20px 80px; gap: 56px; color: #F0F0F8; }
+  .page-header { text-align: center; }
+  .page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #4F9CF9, #7C6FCD); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .page-header p { color: #55556A; font-size: 0.8125rem; margin-top: 4px; }
+  .row-label { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #4F9CF9; text-align: center; margin-bottom: 16px; }
+  .phone-row { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .screen-label { font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #3A3A4A; }
+  .phone { width: 340px; height: 736px; background: #111118; border-radius: 52px; border: 1.5px solid rgba(255,255,255,0.1); box-shadow: 0 0 0 5px #0A0A12, 0 0 0 6.5px rgba(255,255,255,0.07), 0 32px 64px rgba(0,0,0,0.85); position: relative; overflow: hidden; flex-shrink: 0; }
+  .phone::before { content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: 30px; background: #08080F; border-radius: 16px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow: hidden; border-radius: 52px; position: relative; background: #08080F; }
+
+  @keyframes draw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(1.05)} }
+
+  .s-bar { height: 50px; display:flex; align-items:flex-end; justify-content:space-between; padding: 0 20px 8px; z-index:10; position:relative; }
+  .s-time { font-size: 0.8125rem; font-weight: 600; }
+  .s-icons { display:flex; gap:5px; }
+  .s-icons svg { width:14px; height:14px; fill:#F0F0F8; }
+
+  .nav-bar { position:absolute; bottom:0; left:0; right:0; height:78px; background:rgba(10,10,18,0.96); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-around; padding:0 8px 14px; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 10px; }
+  .nav-item svg { width:20px; height:20px; }
+  .nav-item span { font-size:0.5625rem; font-weight:500; }
+  .nav-item.a { color:#4F9CF9; } .nav-item:not(.a) { color:#3A3A4A; }
+
+  .scroll { height:calc(100% - 50px - 78px); overflow-y:auto; scrollbar-width:none; }
+  .scroll::-webkit-scrollbar { display:none; }
+
+  .back-row { display:flex; align-items:center; gap:6px; padding:8px 20px; font-size:0.8125rem; color:#4F9CF9; font-weight:500; }
+  .back-row svg { width:15px; height:15px; }
+
+  .card { background:#1A1A26; border:1px solid rgba(255,255,255,0.07); border-radius:22px; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font-size:0.5625rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
+  .sec-head { display:flex; justify-content:space-between; align-items:center; padding:12px 20px 8px; }
+  .sec-title { font-size:0.9375rem; font-weight:700; }
+  .sec-link { font-size:0.75rem; color:#4F9CF9; font-weight:500; }
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Pulse+ · Health Metrics</h1>
+  <p>Blood Pressure · Blood Oxygen · Glucose · Nutrition · Hydration · Weight/BMI · Running · Workout Dashboard</p>
+</div>
+
+<div class="row-label">Vital Signs</div>
+<div class="phone-row">
+
+  <!-- BLOOD PRESSURE -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#FB7185;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Blood Pressure
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Hero -->
+        <div style="margin:4px 16px;background:linear-gradient(135deg,#1A0815 0%,#220F20 100%);border-radius:22px;padding:20px 22px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 20%,rgba(251,113,133,0.15) 0%,transparent 60%);"></div>
+          <div class="badge" style="background:rgba(251,113,133,0.15);color:#FB7185;border:1px solid rgba(251,113,133,0.3);margin-bottom:12px;">🩺 Last reading · 2 hours ago</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8888A8;margin-bottom:6px;">Systolic / Diastolic</div>
+              <div style="display:flex;align-items:baseline;gap:8px;">
+                <div style="font-size:3.5rem;font-weight:900;letter-spacing:-0.05em;line-height:1;color:#F0F0F8;">128</div>
+                <div style="font-size:1.5rem;font-weight:400;color:#55556A;">/</div>
+                <div style="font-size:3.5rem;font-weight:900;letter-spacing:-0.05em;line-height:1;color:#F0F0F8;">82</div>
+              </div>
+              <div style="font-size:0.75rem;color:#FB7185;font-weight:500;margin-top:4px;">mmHg · Stage 1 Hypertension</div>
+            </div>
+            <div style="font-size:2.5rem;animation:float 3s ease-in-out infinite;">💗</div>
+          </div>
+          <!-- BP gauge SVG -->
+          <div style="margin-top:16px;">
+            <svg width="100%" height="32" viewBox="0 0 296 32">
+              <!-- Track -->
+              <rect x="0" y="12" width="296" height="8" rx="4" fill="rgba(255,255,255,0.07)"/>
+              <!-- Zones -->
+              <rect x="0" y="12" width="59" height="8" rx="4" fill="#4F9CF9" opacity=".6"/> <!-- Low <90 -->
+              <rect x="59" y="12" width="89" height="8" fill="#22C55E" opacity=".6"/> <!-- Normal 90-120 -->
+              <rect x="148" y="12" width="59" height="8" fill="#F59E0B" opacity=".6"/> <!-- Elevated 120-140 -->
+              <rect x="207" y="12" width="59" height="8" fill="#EF4444" opacity=".6"/> <!-- High >140 -->
+              <rect x="266" y="12" width="30" height="8" rx="0 4 4 0" fill="#7B0000" opacity=".6"/>
+              <!-- Indicator needle -->
+              <rect x="165" y="6" width="3" height="20" rx="1.5" fill="white"/>
+              <circle cx="166.5" cy="16" r="5" fill="white" stroke="rgba(251,113,133,0.6)" stroke-width="2"/>
+              <!-- Zone labels -->
+              <text x="30" y="30" fill="#55556A" font-size="7" text-anchor="middle">Low</text>
+              <text x="104" y="30" fill="#55556A" font-size="7" text-anchor="middle">Normal</text>
+              <text x="178" y="30" fill="#F59E0B" font-size="7" text-anchor="middle">Elevated</text>
+              <text x="236" y="30" fill="#EF4444" font-size="7" text-anchor="middle">High</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 16px;">
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">📉</div>
+            <div style="font-size:1.125rem;font-weight:700;color:#4F9CF9;">112/74</div>
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-top:2px;">Best This Week</div>
+          </div>
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">📊</div>
+            <div style="font-size:1.125rem;font-weight:700;color:#FB7185;">130/84</div>
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-top:2px;">Avg Today</div>
+          </div>
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">🫀</div>
+            <div style="font-size:1.125rem;font-weight:700;color:#10B981;">62</div>
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-top:2px;">Pulse bpm</div>
+          </div>
+        </div>
+
+        <!-- 7-day trend -->
+        <div class="sec-head"><span class="sec-title">7-Day History</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <svg width="100%" height="80" viewBox="0 0 296 80">
+            <!-- Systolic line -->
+            <polyline points="10,52 52,48 94,42 136,60 178,56 220,44 262,50" fill="none" stroke="#FB7185" stroke-width="2" stroke-linecap="round" style="stroke-dasharray:500;animation:draw 1.2s ease-out both 0.3s"/>
+            <!-- Diastolic line -->
+            <polyline points="10,68 52,65 94,60 136,72 178,70 220,62 262,65" fill="none" stroke="#7C6FCD" stroke-width="1.5" stroke-linecap="round" style="stroke-dasharray:500;animation:draw 1.2s ease-out both 0.4s"/>
+            <!-- Normal zone band -->
+            <rect x="0" y="56" width="296" height="12" fill="rgba(34,197,94,0.05)"/>
+            <text x="2" y="70" fill="#22C55E" font-size="7" opacity=".5">Normal</text>
+            <!-- Dots -->
+            <circle cx="136" cy="60" r="4" fill="#FB7185" stroke="#08080F" stroke-width="2"/>
+            <!-- Labels -->
+            <text x="10" y="78" fill="#55556A" font-size="8" text-anchor="middle">Mon</text>
+            <text x="52" y="78" fill="#55556A" font-size="8" text-anchor="middle">Tue</text>
+            <text x="94" y="78" fill="#55556A" font-size="8" text-anchor="middle">Wed</text>
+            <text x="136" y="78" fill="#4F9CF9" font-size="8" text-anchor="middle">Thu</text>
+            <text x="178" y="78" fill="#55556A" font-size="8" text-anchor="middle">Fri</text>
+            <text x="220" y="78" fill="#55556A" font-size="8" text-anchor="middle">Sat</text>
+            <text x="262" y="78" fill="#55556A" font-size="8" text-anchor="middle">Sun</text>
+          </svg>
+          <div style="display:flex;gap:16px;margin-top:8px;">
+            <div style="display:flex;gap:5px;align-items:center;"><div style="width:12px;height:3px;border-radius:999px;background:#FB7185;"></div><span style="font-size:0.6875rem;color:#8888A8;">Systolic</span></div>
+            <div style="display:flex;gap:5px;align-items:center;"><div style="width:12px;height:3px;border-radius:999px;background:#7C6FCD;"></div><span style="font-size:0.6875rem;color:#8888A8;">Diastolic</span></div>
+          </div>
+        </div>
+
+        <!-- AI note -->
+        <div style="margin:8px 16px;background:rgba(251,113,133,0.07);border:1px solid rgba(251,113,133,0.15);border-radius:18px;padding:14px;">
+          <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FB7185;margin-bottom:6px;">⚠️ Pulse AI Note</div>
+          <p style="font-size:0.8125rem;line-height:1.45;color:#C8C8E0;">Your BP has been elevated since <strong>Tuesday</strong>. This may correlate with higher-than-usual work stress this week. Consider a 10-minute breathing exercise before bed. <span style="color:#4F9CF9;">Log your next reading →</span></p>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Blood Pressure</span>
+  </div>
+
+  <!-- BLOOD OXYGEN -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#06B6D4;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Blood Oxygen (SpO₂)
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Hero gauge -->
+        <div style="display:flex;flex-direction:column;align-items:center;padding:8px 20px 16px;background:linear-gradient(135deg,#08080F,#0A1520);margin:4px 16px;border-radius:22px;border:1px solid rgba(6,182,212,0.12);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(6,182,212,0.12) 0%,transparent 60%);"></div>
+          <div class="badge" style="background:rgba(6,182,212,0.12);color:#06B6D4;border:1px solid rgba(6,182,212,0.25);margin-bottom:14px;">● Measuring continuously</div>
+
+          <!-- Gauge ring -->
+          <div style="position:relative;width:160px;height:160px;">
+            <svg width="160" height="160" style="transform:rotate(-90deg);">
+              <!-- Track -->
+              <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(6,182,212,0.12)" stroke-width="12"/>
+              <!-- Progress: 98% -->
+              <circle cx="80" cy="80" r="68" fill="none" stroke="url(#spo2g)" stroke-width="12"
+                stroke-linecap="round" stroke-dasharray="427" stroke-dashoffset="8.5"
+                style="animation:draw 1.2s ease-out both 0.3s"/>
+              <defs>
+                <linearGradient id="spo2g" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#06B6D4"/><stop offset="100%" stop-color="#4F9CF9"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+              <div style="font-size:3rem;font-weight:900;letter-spacing:-0.05em;background:linear-gradient(135deg,#06B6D4,#4F9CF9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">98</div>
+              <div style="font-size:0.875rem;color:#8888A8;font-weight:400;">%</div>
+              <div class="badge" style="background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.25);margin-top:4px;">✓ Excellent</div>
+            </div>
+          </div>
+
+          <!-- SpO2 reference range -->
+          <div style="width:100%;margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.625rem;color:#55556A;margin-bottom:4px;"><span>Critical &lt;90%</span><span>Normal 95-100%</span></div>
+            <div style="height:6px;border-radius:999px;overflow:hidden;background:linear-gradient(90deg,#EF4444 0%,#F59E0B 30%,#22C55E 60%,#06B6D4 100%);">
+              <div style="position:relative;">
+                <div style="position:absolute;left:calc(98% - 2px);top:-4px;width:4px;height:14px;background:white;border-radius:2px;box-shadow:0 0 6px rgba(6,182,212,0.6);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 16px;">
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">Resting SpO₂</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#06B6D4;">98%</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:2px;">✓ Normal</div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">During Sleep</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#4F9CF9;">96%</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:2px;">↑ Improved</div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">Lowest Today</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#F0F0F8;">95%</div>
+            <div style="font-size:0.6875rem;color:#8888A8;margin-top:2px;">During workout</div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">7-Day Avg</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#22C55E;">97%</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:2px;">↑ Above baseline</div>
+          </div>
+        </div>
+
+        <!-- 24h trend -->
+        <div class="sec-head"><span class="sec-title">Today's Readings</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <svg width="100%" height="72" viewBox="0 0 296 72">
+            <defs>
+              <linearGradient id="spo2area" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#06B6D4" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="296" height="48" fill="rgba(34,197,94,0.04)"/>
+            <text x="4" y="12" fill="#22C55E" font-size="7" opacity=".4">Normal zone</text>
+            <path d="M10,16 L52,18 L94,20 L120,22 L140,38 L165,22 L200,18 L240,14 L282,16 L282,72 L10,72 Z" fill="url(#spo2area)"/>
+            <polyline points="10,16 52,18 94,20 120,22 140,38 165,22 200,18 240,14 282,16"
+              fill="none" stroke="#06B6D4" stroke-width="2" stroke-linecap="round"
+              style="stroke-dasharray:500;animation:draw 1.4s ease-out both 0.3s"/>
+            <circle cx="140" cy="38" r="4" fill="#F59E0B" stroke="#08080F" stroke-width="2"/>
+            <text x="140" y="52" fill="#F59E0B" font-size="7" text-anchor="middle">94% workout</text>
+            <!-- Time labels -->
+            <text x="10" y="68" fill="#55556A" font-size="7" text-anchor="middle">6am</text>
+            <text x="94" y="68" fill="#55556A" font-size="7" text-anchor="middle">10am</text>
+            <text x="178" y="68" fill="#55556A" font-size="7" text-anchor="middle">2pm</text>
+            <text x="262" y="68" fill="#4F9CF9" font-size="7" text-anchor="middle">Now</text>
+          </svg>
+        </div>
+
+        <!-- SpO2 info -->
+        <div style="margin:8px 16px 12px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px 16px;">
+          <div style="font-size:0.6875rem;font-weight:700;color:#06B6D4;margin-bottom:8px;">SpO₂ Reference Guide</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;"><span style="color:#22C55E;">95–100%</span><span style="color:#8888A8;">Normal</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;"><span style="color:#F59E0B;">90–94%</span><span style="color:#8888A8;">Mildly low — watch closely</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;"><span style="color:#EF4444;">&lt;90%</span><span style="color:#8888A8;">Seek medical attention</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Blood Oxygen</span>
+  </div>
+
+  <!-- GLUCOSE -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#F59E0B;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Blood Glucose
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Hero -->
+        <div style="margin:4px 16px;background:linear-gradient(135deg,#160E00,#1E1400);border-radius:22px;padding:20px;border:1px solid rgba(245,158,11,0.15);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(245,158,11,0.15) 0%,transparent 50%);"></div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
+            <div>
+              <div class="badge" style="background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);margin-bottom:10px;">🍽 2h after lunch</div>
+              <div style="font-size:3.75rem;font-weight:900;letter-spacing:-0.05em;color:#F0F0F8;line-height:1;">128</div>
+              <div style="font-size:0.875rem;color:#8888A8;margin-top:2px;">mg/dL · <span style="color:#F59E0B;">Slightly elevated</span></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.08em;">Trend</div>
+              <div style="font-size:1.5rem;font-weight:700;color:#F59E0B;margin-top:2px;">↑ +12</div>
+              <div style="font-size:0.6875rem;color:#8888A8;">since 30m ago</div>
+            </div>
+          </div>
+          <!-- CGM-style graph -->
+          <div style="margin-top:16px;">
+            <svg width="100%" height="56" viewBox="0 0 296 56">
+              <defs>
+                <linearGradient id="glcArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Target range band -->
+              <rect x="0" y="20" width="296" height="18" fill="rgba(34,197,94,0.08)" rx="0"/>
+              <!-- Glucose line -->
+              <path d="M0,44 L40,38 L80,28 L100,20 L120,16 L140,22 L160,28 L180,24 L220,18 L260,12 L296,8"
+                fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"
+                style="stroke-dasharray:600;animation:draw 1.5s ease-out both 0.3s"/>
+              <path d="M0,44 L40,38 L80,28 L100,20 L120,16 L140,22 L160,28 L180,24 L220,18 L260,12 L296,8 L296,56 L0,56 Z"
+                fill="url(#glcArea)"/>
+              <!-- Labels -->
+              <text x="2" y="24" fill="#22C55E" font-size="6" opacity=".6">Target</text>
+              <text x="0" y="54" fill="#55556A" font-size="7">Fasting</text>
+              <text x="80" y="54" fill="#55556A" font-size="7">Breakfast</text>
+              <text x="180" y="54" fill="#F59E0B" font-size="7">Lunch</text>
+              <text x="260" y="54" fill="#55556A" font-size="7">Now</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 16px;">
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">Fasting</div>
+            <div style="font-size:1.125rem;font-weight:700;color:#22C55E;">94</div>
+            <div style="font-size:0.5625rem;color:#22C55E;">Normal</div>
+          </div>
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">Post-Meal</div>
+            <div style="font-size:1.125rem;font-weight:700;color:#F59E0B;">128</div>
+            <div style="font-size:0.5625rem;color:#F59E0B;">Slightly high</div>
+          </div>
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-bottom:4px;">HbA1c Est</div>
+            <div style="font-size:1.125rem;font-weight:700;color:#10B981;">5.8%</div>
+            <div style="font-size:0.5625rem;color:#10B981;">Pre-diabetic</div>
+          </div>
+        </div>
+
+        <!-- Food correlation -->
+        <div class="sec-head"><span class="sec-title">Today's Log</span><span class="sec-link">+ Add Reading</span></div>
+        <div style="margin:0 16px;display:flex;flex-direction:column;gap:8px;">
+          <div class="card" style="padding:12px 14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🌅</div>
+            <div style="flex:1;">
+              <div style="font-size:0.8125rem;font-weight:600;">Fasting (7:00 AM)</div>
+              <div style="font-size:0.6875rem;color:#8888A8;">Before breakfast</div>
+            </div>
+            <div style="font-size:1rem;font-weight:700;color:#22C55E;">94</div>
+          </div>
+          <div class="card" style="padding:12px 14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🍽</div>
+            <div style="flex:1;">
+              <div style="font-size:0.8125rem;font-weight:600;">Post-lunch (2:00 PM)</div>
+              <div style="font-size:0.6875rem;color:#8888A8;">Rice + dal + salad</div>
+            </div>
+            <div style="font-size:1rem;font-weight:700;color:#F59E0B;">128</div>
+          </div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Blood Glucose</span>
+  </div>
+
+  <!-- NUTRITION / CALORIES -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#F97316;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Nutrition
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Calorie ring hero -->
+        <div style="display:flex;flex-direction:column;align-items:center;padding:16px 20px;background:linear-gradient(135deg,#140800,#1C1000);margin:4px 16px;border-radius:22px;border:1px solid rgba(249,115,22,0.12);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(249,115,22,0.12) 0%,transparent 55%);"></div>
+          <div style="position:relative;width:150px;height:150px;">
+            <svg width="150" height="150" style="transform:rotate(-90deg);">
+              <circle cx="75" cy="75" r="62" fill="none" stroke="rgba(249,115,22,0.12)" stroke-width="10"/>
+              <circle cx="75" cy="75" r="62" fill="none" stroke="url(#calg)" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="390" stroke-dashoffset="117"
+                style="animation:draw 1.2s ease-out both 0.3s"/>
+              <defs><linearGradient id="calg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#F97316"/><stop offset="100%" stop-color="#EF4444"/></linearGradient></defs>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+              <div style="font-size:2.25rem;font-weight:900;letter-spacing:-0.05em;background:linear-gradient(135deg,#F97316,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">1,840</div>
+              <div style="font-size:0.625rem;color:#8888A8;">of 2,400 kcal</div>
+              <div style="font-size:0.625rem;color:#22C55E;margin-top:3px;">560 kcal remaining</div>
+            </div>
+          </div>
+          <!-- Macro bars -->
+          <div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-top:14px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:56px;font-size:0.6875rem;color:#8888A8;text-align:right;">Carbs</div>
+              <div style="flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:68%;height:100%;background:linear-gradient(90deg,#F59E0B,#F97316);border-radius:999px;"></div></div>
+              <div style="width:56px;font-size:0.6875rem;font-weight:600;text-align:left;">220g / 300g</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:56px;font-size:0.6875rem;color:#8888A8;text-align:right;">Protein</div>
+              <div style="flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:85%;height:100%;background:linear-gradient(90deg,#4F9CF9,#7C6FCD);border-radius:999px;"></div></div>
+              <div style="width:56px;font-size:0.6875rem;font-weight:600;text-align:left;">102g / 120g</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:56px;font-size:0.6875rem;color:#8888A8;text-align:right;">Fat</div>
+              <div style="flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:45%;height:100%;background:linear-gradient(90deg,#10B981,#06B6D4);border-radius:999px;"></div></div>
+              <div style="width:56px;font-size:0.6875rem;font-weight:600;text-align:left;">36g / 80g</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Food log -->
+        <div class="sec-head"><span class="sec-title">Today's Meals</span><span class="sec-link">+ Log Food</span></div>
+        <div style="margin:0 16px;display:flex;flex-direction:column;gap:8px;">
+          <div class="card" style="padding:14px 16px;">
+            <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8888A8;margin-bottom:8px;">🌅 Breakfast · 7:30 AM</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:0.875rem;font-weight:500;">Oatmeal with berries</span><span style="font-size:0.875rem;font-weight:700;color:#F97316;">380 kcal</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="font-size:0.75rem;color:#8888A8;">Protein 12g · Carbs 58g · Fat 8g</span></div>
+          </div>
+          <div class="card" style="padding:14px 16px;">
+            <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8888A8;margin-bottom:8px;">🌤 Lunch · 12:30 PM</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:0.875rem;font-weight:500;">Grilled chicken + rice</span><span style="font-size:0.875rem;font-weight:700;color:#F97316;">640 kcal</span></div>
+          </div>
+          <div class="card" style="padding:14px 16px;border:1px solid rgba(249,115,22,0.2);">
+            <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">🌙 Dinner · Pending</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:0.875rem;color:#55556A;">Tap to log dinner</span><span style="font-size:0.875rem;color:#4F9CF9;">+ Add</span></div>
+          </div>
+        </div>
+
+        <!-- Food scanner CTA -->
+        <div style="margin:10px 16px 12px;background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(239,68,68,0.08));border:1px solid rgba(249,115,22,0.2);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <div style="font-size:1.5rem;">📷</div>
+          <div style="flex:1;"><div style="font-size:0.875rem;font-weight:600;">Food Scanner</div><div style="font-size:0.75rem;color:#8888A8;margin-top:2px;">Scan barcode or take a photo</div></div>
+          <div style="font-size:0.75rem;color:#F97316;font-weight:600;">Try →</div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Nutrition</span>
+  </div>
+
+  <!-- HYDRATION -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#22D3EE;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Hydration
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Water bottle visual -->
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px;background:linear-gradient(135deg,#071020,#0A1628);margin:4px 16px;border-radius:22px;border:1px solid rgba(34,211,238,0.12);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(34,211,238,0.1) 0%,transparent 55%);"></div>
+
+          <!-- Water drop SVG -->
+          <svg width="120" height="160" viewBox="0 0 120 160" style="position:relative;">
+            <defs>
+              <clipPath id="dropClip">
+                <path d="M60 10 C60 10, 10 65, 10 100 C10 130, 32 150, 60 150 C88 150, 110 130, 110 100 C110 65, 60 10, 60 10Z"/>
+              </clipPath>
+              <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#06B6D4"/>
+              </linearGradient>
+            </defs>
+            <!-- Drop outline -->
+            <path d="M60 10 C60 10, 10 65, 10 100 C10 130, 32 150, 60 150 C88 150, 110 130, 110 100 C110 65, 60 10, 60 10Z" fill="rgba(34,211,238,0.06)" stroke="rgba(34,211,238,0.3)" stroke-width="2"/>
+            <!-- Water fill (72%) -->
+            <rect x="0" y="107" width="120" height="55" clip-path="url(#dropClip)" fill="url(#waterGrad)" opacity="0.85"/>
+            <!-- Wave effect -->
+            <path d="M10 107 Q35 100 60 107 Q85 114 110 107" fill="none" stroke="rgba(34,211,238,0.5)" stroke-width="2"/>
+            <!-- Percentage text -->
+            <text x="60" y="125" fill="white" font-size="14" font-weight="800" text-anchor="middle">72%</text>
+            <text x="60" y="138" fill="rgba(255,255,255,0.7)" font-size="7" text-anchor="middle">1.8L / 2.5L</text>
+          </svg>
+
+          <div style="display:flex;gap:12px;margin-top:8px;">
+            <div style="text-align:center;">
+              <div style="font-size:1.5rem;font-weight:800;color:#22D3EE;">1.8L</div>
+              <div style="font-size:0.5625rem;color:#8888A8;margin-top:1px;">Consumed</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.07);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:1.5rem;font-weight:800;color:#55556A;">0.7L</div>
+              <div style="font-size:0.5625rem;color:#8888A8;margin-top:1px;">Remaining</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.07);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:1.5rem;font-weight:800;color:#22C55E;">5</div>
+              <div style="font-size:0.5625rem;color:#8888A8;margin-top:1px;">Glasses</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick log buttons -->
+        <div class="sec-head"><span class="sec-title">Log Water</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 16px;">
+          <div class="card" style="padding:14px;text-align:center;border:1px solid rgba(34,211,238,0.15);">
+            <div style="font-size:1.25rem;margin-bottom:4px;">🥤</div>
+            <div style="font-size:0.875rem;font-weight:700;color:#22D3EE;">200ml</div>
+            <div style="font-size:0.5625rem;color:#55556A;margin-top:2px;">Small glass</div>
+          </div>
+          <div class="card" style="padding:14px;text-align:center;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);">
+            <div style="font-size:1.25rem;margin-bottom:4px;">🥛</div>
+            <div style="font-size:0.875rem;font-weight:700;color:#22D3EE;">350ml</div>
+            <div style="font-size:0.5625rem;color:#22D3EE;margin-top:2px;">Large glass ★</div>
+          </div>
+          <div class="card" style="padding:14px;text-align:center;border:1px solid rgba(34,211,238,0.15);">
+            <div style="font-size:1.25rem;margin-bottom:4px;">🍶</div>
+            <div style="font-size:0.875rem;font-weight:700;color:#22D3EE;">500ml</div>
+            <div style="font-size:0.5625rem;color:#55556A;margin-top:2px;">Water bottle</div>
+          </div>
+        </div>
+
+        <!-- Hourly log -->
+        <div class="sec-head"><span class="sec-title">Today's Log</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <svg width="100%" height="60" viewBox="0 0 296 60">
+            <!-- Hour bars -->
+            <rect x="5" y="50" width="18" height="10" rx="4" fill="#22D3EE" opacity=".4"/>
+            <rect x="30" y="40" width="18" height="20" rx="4" fill="#22D3EE" opacity=".5"/>
+            <rect x="55" y="30" width="18" height="30" rx="4" fill="#22D3EE" opacity=".6"/>
+            <rect x="80" y="44" width="18" height="16" rx="4" fill="#22D3EE" opacity=".4"/>
+            <rect x="105" y="35" width="18" height="25" rx="4" fill="#22D3EE" opacity=".7"/>
+            <rect x="130" y="48" width="18" height="12" rx="4" fill="#22D3EE" opacity=".4"/>
+            <rect x="155" y="38" width="18" height="22" rx="4" fill="#22D3EE" opacity=".6"/>
+            <rect x="180" y="28" width="18" height="32" rx="4" fill="#22D3EE" opacity=".8"/>
+            <rect x="205" y="55" width="18" height="5" rx="2" fill="rgba(255,255,255,0.1)"/>
+            <rect x="230" y="55" width="18" height="5" rx="2" fill="rgba(255,255,255,0.1)"/>
+            <rect x="255" y="55" width="18" height="5" rx="2" fill="rgba(255,255,255,0.1)"/>
+            <!-- Time labels -->
+            <text x="14" y="58" fill="#55556A" font-size="7" text-anchor="middle">7am</text>
+            <text x="64" y="58" fill="#55556A" font-size="7" text-anchor="middle">9am</text>
+            <text x="114" y="58" fill="#55556A" font-size="7" text-anchor="middle">11am</text>
+            <text x="189" y="58" fill="#22D3EE" font-size="7" text-anchor="middle">1pm</text>
+          </svg>
+        </div>
+
+        <!-- Reminders -->
+        <div style="margin:8px 16px 12px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px 16px;">
+          <div style="font-size:0.6875rem;font-weight:600;color:#22D3EE;margin-bottom:6px;">💧 Smart Reminders</div>
+          <div style="font-size:0.8125rem;color:#C8C8E0;">Next reminder in <strong style="color:#F0F0F8;">1h 20m</strong> (3:00 PM)</div>
+          <div style="font-size:0.75rem;color:#55556A;margin-top:4px;">Reminders every 1.5 hours · 8am–9pm</div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Hydration</span>
+  </div>
+
+  <!-- WEIGHT / BMI -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#10B981;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Weight & BMI
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Hero -->
+        <div style="margin:4px 16px;background:linear-gradient(135deg,#071814,#0A1E18);border-radius:22px;padding:20px;border:1px solid rgba(16,185,129,0.15);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(16,185,129,0.12) 0%,transparent 50%);"></div>
+          <div style="position:relative;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8888A8;margin-bottom:6px;">Current Weight</div>
+                <div style="font-size:3.75rem;font-weight:900;letter-spacing:-0.05em;line-height:1;background:linear-gradient(135deg,#10B981,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">78.2</div>
+                <div style="font-size:1rem;color:#8888A8;">kg</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:0.625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Change</div>
+                <div style="font-size:1.375rem;font-weight:700;color:#10B981;">-3.8 kg</div>
+                <div style="font-size:0.75rem;color:#8888A8;">since Jan 1</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:0.875rem;font-weight:700;color:#F0F0F8;">BMI: 25.5</div>
+                  <div style="font-size:0.75rem;color:#F59E0B;margin-top:1px;">Overweight (border)</div>
+                </div>
+                <div>
+                  <div style="font-size:0.875rem;font-weight:700;color:#F0F0F8;text-align:right;">Goal: 75 kg</div>
+                  <div style="font-size:0.75rem;color:#10B981;text-align:right;margin-top:1px;">3.2 kg to go</div>
+                </div>
+              </div>
+              <!-- BMI bar -->
+              <div style="margin-top:10px;">
+                <div style="height:6px;border-radius:999px;overflow:hidden;background:linear-gradient(90deg,#4F9CF9 0%,#22C55E 35%,#F59E0B 65%,#EF4444 100%);">
+                  <div style="position:relative;height:100%;"></div>
+                </div>
+                <div style="position:relative;margin-top:2px;">
+                  <div style="position:absolute;left:calc(55.5% - 1px);top:0;width:3px;height:10px;background:white;border-radius:1px;margin-top:-8px;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.5rem;color:#55556A;margin-top:6px;">
+                  <span>Under</span><span style="color:#22C55E;">Normal</span><span style="color:#F59E0B;">Overweight</span><span style="color:#EF4444;">Obese</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weight trend chart -->
+        <div class="sec-head"><span class="sec-title">6-Month Trend</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <svg width="100%" height="80" viewBox="0 0 296 80">
+            <defs>
+              <linearGradient id="wtArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10B981" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Goal line -->
+            <line x1="0" y1="65" x2="296" y2="65" stroke="rgba(16,185,129,0.3)" stroke-width="1" stroke-dasharray="5,5"/>
+            <text x="290" y="62" fill="#10B981" font-size="7" text-anchor="end">Goal</text>
+            <!-- Area -->
+            <path d="M10,20 L62,22 L114,28 L166,34 L218,38 L270,44 L270,80 L10,80 Z" fill="url(#wtArea)"/>
+            <!-- Line -->
+            <path d="M10,20 L62,22 L114,28 L166,34 L218,38 L270,44"
+              fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"
+              style="stroke-dasharray:500;animation:draw 1.2s ease-out both 0.3s"/>
+            <!-- Current dot -->
+            <circle cx="270" cy="44" r="5" fill="#10B981" stroke="#08080F" stroke-width="2.5"/>
+            <!-- Labels -->
+            <text x="10" y="76" fill="#55556A" font-size="7" text-anchor="middle">Aug</text>
+            <text x="62" y="76" fill="#55556A" font-size="7" text-anchor="middle">Sep</text>
+            <text x="114" y="76" fill="#55556A" font-size="7" text-anchor="middle">Oct</text>
+            <text x="166" y="76" fill="#55556A" font-size="7" text-anchor="middle">Nov</text>
+            <text x="218" y="76" fill="#55556A" font-size="7" text-anchor="middle">Dec</text>
+            <text x="270" y="76" fill="#4F9CF9" font-size="7" text-anchor="middle">Jan</text>
+            <!-- Y labels -->
+            <text x="294" y="22" fill="#55556A" font-size="7" text-anchor="end">82kg</text>
+            <text x="294" y="48" fill="#55556A" font-size="7" text-anchor="end">78.2</text>
+          </svg>
+        </div>
+
+        <!-- Body composition -->
+        <div class="sec-head"><span class="sec-title">Body Composition</span></div>
+        <div class="card" style="margin:0 16px 12px;padding:16px;">
+          <div style="display:flex;height:16px;border-radius:999px;overflow:hidden;margin-bottom:12px;">
+            <div style="width:28%;background:linear-gradient(90deg,#F59E0B,#F97316);"></div>
+            <div style="width:47%;background:linear-gradient(90deg,#4F9CF9,#7C6FCD);"></div>
+            <div style="width:14%;background:linear-gradient(90deg,#10B981,#06B6D4);"></div>
+            <div style="width:11%;background:rgba(255,255,255,0.2);"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="display:flex;gap:8px;align-items:center;"><div style="width:8px;height:8px;border-radius:2px;background:#F59E0B;"></div><span style="font-size:0.75rem;color:#8888A8;">Fat 28% · 21.9kg</span></div>
+            <div style="display:flex;gap:8px;align-items:center;"><div style="width:8px;height:8px;border-radius:2px;background:#4F9CF9;"></div><span style="font-size:0.75rem;color:#8888A8;">Muscle 47% · 36.7kg</span></div>
+            <div style="display:flex;gap:8px;align-items:center;"><div style="width:8px;height:8px;border-radius:2px;background:#10B981;"></div><span style="font-size:0.75rem;color:#8888A8;">Bone 14% · 10.9kg</span></div>
+            <div style="display:flex;gap:8px;align-items:center;"><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,0.2);"></div><span style="font-size:0.75rem;color:#8888A8;">Water 11% · 8.6kg</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Weight & BMI</span>
+  </div>
+
+</div>
+
+</body>
+</html>

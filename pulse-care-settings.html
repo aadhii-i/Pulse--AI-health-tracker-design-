@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse+ · Care, Reports & Settings</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: -apple-system, 'Helvetica Neue', sans-serif; background: #050508; display: flex; flex-direction: column; align-items: center; padding: 40px 20px 80px; gap: 56px; color: #F0F0F8; }
+  .page-header { text-align: center; }
+  .page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #EF4444, #FB7185); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .page-header p { color: #55556A; font-size: 0.8125rem; margin-top: 4px; }
+  .row-label { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #55556A; text-align: center; margin-bottom: 16px; }
+  .phone-row { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .screen-label { font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #3A3A4A; }
+  .phone { width: 340px; height: 736px; background: #111118; border-radius: 52px; border: 1.5px solid rgba(255,255,255,0.1); box-shadow: 0 0 0 5px #0A0A12, 0 0 0 6.5px rgba(255,255,255,0.07), 0 32px 64px rgba(0,0,0,0.85); position: relative; overflow: hidden; flex-shrink: 0; }
+  .phone::before { content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: 30px; background: #08080F; border-radius: 16px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow: hidden; border-radius: 52px; position: relative; background: #08080F; }
+  @keyframes draw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(1.08)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes sos-ring { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.5);opacity:0} }
+  .s-bar { height: 50px; display:flex; align-items:flex-end; justify-content:space-between; padding: 0 20px 8px; z-index:10; position:relative; }
+  .s-time { font-size: 0.8125rem; font-weight: 600; }
+  .nav-bar { position:absolute; bottom:0; left:0; right:0; height:78px; background:rgba(10,10,18,0.96); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-around; padding:0 8px 14px; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 10px; }
+  .nav-item svg { width:20px; height:20px; }
+  .nav-item span { font-size:0.5625rem; font-weight:500; }
+  .nav-item.a { color:#4F9CF9; } .nav-item:not(.a) { color:#3A3A4A; }
+  .scroll { height:calc(100% - 50px - 78px); overflow-y:auto; scrollbar-width:none; }
+  .scroll::-webkit-scrollbar { display:none; }
+  .back-row { display:flex; align-items:center; gap:6px; padding:6px 20px; font-size:0.8125rem; font-weight:500; }
+  .card { background:#1A1A26; border:1px solid rgba(255,255,255,0.07); border-radius:22px; }
+  .sec-head { display:flex; justify-content:space-between; align-items:center; padding:12px 20px 8px; }
+  .sec-title { font-size:0.9375rem; font-weight:700; }
+  .sec-link { font-size:0.75rem; color:#4F9CF9; font-weight:500; }
+  .row-item { display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .row-item:last-child { border-bottom:none; }
+  .row-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+  .chevron { color:#3A3A4A; font-size:0.75rem; }
+  .toggle { width:44px; height:26px; border-radius:999px; position:relative; flex-shrink:0; }
+  .toggle.on { background:linear-gradient(135deg,#4F9CF9,#7C6FCD); }
+  .toggle.off { background:rgba(255,255,255,0.12); }
+  .toggle-knob { width:20px; height:20px; border-radius:999px; background:white; position:absolute; top:3px; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
+  .toggle.on .toggle-knob { right:3px; }
+  .toggle.off .toggle-knob { left:3px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Pulse+ · Care, Reports & Settings</h1>
+  <p>Emergency SOS · Health Reports · Doctor Appointments · Notifications · Settings · Privacy · Premium</p>
+</div>
+
+<div class="row-label">Care & Emergency</div>
+<div class="phone-row">
+
+  <!-- EMERGENCY SOS -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div style="height:100%;background:linear-gradient(175deg,#1A0000 0%,#280000 50%,#200008 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(239,68,68,0.2) 0%,transparent 60%);"></div>
+
+        <div class="s-bar" style="background:transparent;"><span class="s-time" style="color:rgba(255,255,255,0.7);">9:41</span></div>
+        <div style="padding:4px 20px 0;position:relative;z-index:1;">
+          <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(239,68,68,0.8);margin-bottom:4px;">🆘 EMERGENCY SERVICES</div>
+          <div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;">Emergency SOS</div>
+          <div style="font-size:0.8125rem;color:rgba(255,255,255,0.5);margin-top:2px;">Hold button for 3 seconds to call</div>
+        </div>
+
+        <!-- SOS Button -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;">
+          <div style="position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;">
+            <!-- Ripple rings -->
+            <div style="position:absolute;width:200px;height:200px;border-radius:999px;border:2px solid rgba(239,68,68,0.3);animation:sos-ring 2s ease-out infinite;"></div>
+            <div style="position:absolute;width:200px;height:200px;border-radius:999px;border:2px solid rgba(239,68,68,0.3);animation:sos-ring 2s ease-out infinite 0.6s;"></div>
+            <div style="position:absolute;width:200px;height:200px;border-radius:999px;border:2px solid rgba(239,68,68,0.3);animation:sos-ring 2s ease-out infinite 1.2s;"></div>
+            <!-- Main button -->
+            <div style="width:140px;height:140px;border-radius:999px;background:linear-gradient(135deg,#EF4444,#DC2626);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(239,68,68,0.6),0 16px 40px rgba(0,0,0,0.5);border:3px solid rgba(255,255,255,0.15);">
+              <span style="font-size:2.5rem;">🆘</span>
+              <span style="font-size:1.125rem;font-weight:900;color:white;letter-spacing:0.05em;margin-top:4px;">SOS</span>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:24px;">
+            <div style="font-size:0.875rem;color:rgba(255,255,255,0.6);">Hold for 3 seconds to alert</div>
+            <div style="font-size:0.75rem;color:rgba(239,68,68,0.6);margin-top:4px;">Emergency contacts will be notified</div>
+          </div>
+        </div>
+
+        <!-- Emergency contacts -->
+        <div style="padding:16px 20px;position:relative;z-index:1;">
+          <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;">Emergency Contacts</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;">
+              <div style="width:38px;height:38px;border-radius:12px;background:rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">👩</div>
+              <div style="flex:1;"><div style="font-size:0.875rem;font-weight:600;">Priya Mehta</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Spouse · Primary</div></div>
+              <div style="font-size:1.25rem;color:#22C55E;">📞</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;">
+              <div style="width:38px;height:38px;border-radius:12px;background:rgba(79,156,249,0.2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">👨</div>
+              <div style="flex:1;"><div style="font-size:0.875rem;font-weight:600;">Ramesh Mehta</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Father · Secondary</div></div>
+              <div style="font-size:1.25rem;color:#22C55E;">📞</div>
+            </div>
+          </div>
+
+          <!-- Medical ID -->
+          <div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:16px;display:flex;gap:10px;align-items:center;">
+            <div style="font-size:1.25rem;">🪪</div>
+            <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:600;color:#F59E0B;">Medical ID</div><div style="font-size:0.6875rem;color:rgba(255,255,255,0.4);">Blood type A+ · Allergies: None · Meds: Lisinopril</div></div>
+          </div>
+
+          <div style="margin-top:10px;height:44px;border-radius:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.875rem;font-weight:600;color:rgba(255,255,255,0.6);">
+            Cancel / Return
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <span class="screen-label">Emergency SOS</span>
+  </div>
+
+  <!-- DOCTOR APPOINTMENT -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 20px 12px;">
+        <div style="font-size:1.375rem;font-weight:800;letter-spacing:-0.03em;">Appointments</div>
+        <div style="width:34px;height:34px;background:rgba(79,156,249,0.1);border:1px solid rgba(79,156,249,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">+</div>
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 44px - 78px);">
+        <!-- Upcoming -->
+        <div style="margin:0 16px 8px;background:linear-gradient(135deg,#0A1220,#101828);border-radius:22px;padding:18px;border:1px solid rgba(79,156,249,0.15);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(79,156,249,0.12) 0%,transparent 50%);"></div>
+          <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4F9CF9;margin-bottom:10px;">⏰ NEXT APPOINTMENT</div>
+          <div style="display:flex;gap:14px;align-items:center;position:relative;">
+            <div style="width:60px;height:66px;border-radius:16px;background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+              <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4F9CF9;">JAN</div>
+              <div style="font-size:1.625rem;font-weight:900;color:#F0F0F8;line-height:1;">20</div>
+              <div style="font-size:0.5625rem;color:#8888A8;">Mon</div>
+            </div>
+            <div>
+              <div style="font-size:1rem;font-weight:700;color:#F0F0F8;">Dr. Kavitha Sharma</div>
+              <div style="font-size:0.8125rem;color:#8888A8;margin-top:2px;">Endocrinologist · Apollo Hospital</div>
+              <div style="font-size:0.75rem;color:#4F9CF9;margin-top:4px;">🕐 10:30 AM · 30 min consultation</div>
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <div style="background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.2);border-radius:999px;padding:3px 10px;font-size:0.625rem;font-weight:600;color:#4F9CF9;">📋 Diabetes Review</div>
+                <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:999px;padding:3px 10px;font-size:0.625rem;font-weight:600;color:#22C55E;">✓ Confirmed</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <div style="flex:1;height:38px;border-radius:11px;background:linear-gradient(135deg,#4F9CF9,#7C6FCD);display:flex;align-items:center;justify-content:center;font-size:0.8125rem;font-weight:600;color:white;gap:5px;">📍 Get Directions</div>
+            <div style="width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:1rem;">📞</div>
+            <div style="width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:1rem;">📄</div>
+          </div>
+        </div>
+
+        <!-- Upcoming list -->
+        <div class="sec-head"><span class="sec-title">All Appointments</span><span class="sec-link">Book new</span></div>
+        <div style="margin:0 16px;display:flex;flex-direction:column;gap:8px;">
+          <div class="card" style="padding:14px 16px;display:flex;gap:12px;align-items:center;">
+            <div style="width:48px;height:52px;border-radius:14px;background:rgba(16,185,129,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(16,185,129,0.2);">
+              <div style="font-size:0.5rem;font-weight:700;text-transform:uppercase;color:#10B981;letter-spacing:0.06em;">FEB</div>
+              <div style="font-size:1.25rem;font-weight:800;color:#F0F0F8;line-height:1.1;">05</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:0.875rem;font-weight:600;">Dr. Pradeep Iyer</div>
+              <div style="font-size:0.75rem;color:#8888A8;margin-top:1px;">Cardiologist · 2:00 PM</div>
+              <div style="font-size:0.6875rem;color:#10B981;margin-top:3px;">Heart health follow-up</div>
+            </div>
+            <div style="font-size:0.75rem;color:#4F9CF9;">›</div>
+          </div>
+          <div class="card" style="padding:14px 16px;display:flex;gap:12px;align-items:center;">
+            <div style="width:48px;height:52px;border-radius:14px;background:rgba(124,111,205,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(124,111,205,0.2);">
+              <div style="font-size:0.5rem;font-weight:700;text-transform:uppercase;color:#7C6FCD;letter-spacing:0.06em;">FEB</div>
+              <div style="font-size:1.25rem;font-weight:800;color:#F0F0F8;line-height:1.1;">18</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:0.875rem;font-weight:600;">Eye Check-up</div>
+              <div style="font-size:0.75rem;color:#8888A8;margin-top:1px;">Dr. Nair Eye Clinic · 11:00 AM</div>
+              <div style="font-size:0.6875rem;color:#7C6FCD;margin-top:3px;">Annual vision screening</div>
+            </div>
+            <div style="font-size:0.75rem;color:#4F9CF9;">›</div>
+          </div>
+        </div>
+
+        <!-- Prepare for appointment -->
+        <div class="sec-head"><span class="sec-title">Prepare for Jan 20</span></div>
+        <div class="card" style="margin:0 16px 12px;padding:16px;">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="width:22px;height:22px;border-radius:7px;background:rgba(34,197,94,0.15);border:1.5px solid rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:0.75rem;color:#22C55E;">✓</span></div>
+              <span style="font-size:0.8125rem;color:#8888A8;text-decoration:line-through;">Export 30-day glucose log</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="width:22px;height:22px;border-radius:7px;background:rgba(34,197,94,0.15);border:1.5px solid rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:0.75rem;color:#22C55E;">✓</span></div>
+              <span style="font-size:0.8125rem;color:#8888A8;text-decoration:line-through;">Note current medications</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0;"></div>
+              <span style="font-size:0.8125rem;color:#F0F0F8;">Prepare questions for doctor</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0;"></div>
+              <span style="font-size:0.8125rem;color:#F0F0F8;">Share health summary PDF</span>
+            </div>
+          </div>
+          <div style="margin-top:12px;height:40px;border-radius:12px;background:linear-gradient(135deg,#4F9CF9,#7C6FCD);display:flex;align-items:center;justify-content:center;font-size:0.8125rem;font-weight:600;color:white;gap:6px;">📊 Generate Health Summary PDF</div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Doctor Appointments</span>
+  </div>
+
+  <!-- HEALTH REPORTS -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 20px 12px;">
+        <div style="font-size:1.375rem;font-weight:800;letter-spacing:-0.03em;">Health Reports</div>
+        <div style="background:rgba(79,156,249,0.1);border:1px solid rgba(79,156,249,0.2);border-radius:999px;padding:4px 12px;font-size:0.6875rem;font-weight:600;color:#4F9CF9;">Jan 2025</div>
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 44px - 78px);">
+        <!-- Monthly score card -->
+        <div style="margin:0 16px 12px;background:linear-gradient(135deg,#4F9CF9,#7C6FCD);border-radius:22px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(255,255,255,0.15) 0%,transparent 50%);"></div>
+          <div style="position:relative;">
+            <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;">JANUARY 2025 REPORT</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+              <div style="font-size:3rem;font-weight:900;letter-spacing:-0.05em;color:white;line-height:1;">82</div>
+              <div style="font-size:1rem;color:rgba(255,255,255,0.6);">/100</div>
+              <div style="font-size:0.875rem;color:rgba(255,255,255,0.8);font-weight:500;">↑ +6 from Dec</div>
+            </div>
+            <div style="font-size:0.875rem;color:rgba(255,255,255,0.75);">Best health month in 6 months 🎉</div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+              <div style="flex:1;height:38px;border-radius:11px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:0.8125rem;font-weight:600;color:white;gap:5px;">📄 Export PDF</div>
+              <div style="width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;">📤</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report metrics -->
+        <div class="sec-head"><span class="sec-title">Monthly Summary</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 12px;">
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">❤️</div>
+            <div style="font-size:1.25rem;font-weight:800;color:#EF4444;">72</div>
+            <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Avg Resting HR</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:3px;">↓ -4 from Dec</div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">😴</div>
+            <div style="font-size:1.25rem;font-weight:800;color:#7C6FCD;">7.4h</div>
+            <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Avg Sleep</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:3px;">↑ +42m from Dec</div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">👟</div>
+            <div style="font-size:1.25rem;font-weight:800;color:#4F9CF9;">8,240</div>
+            <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Avg Daily Steps</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:3px;">↑ +1,200</div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.875rem;margin-bottom:4px;">🏃</div>
+            <div style="font-size:1.25rem;font-weight:800;color:#F97316;">18</div>
+            <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Workouts</div>
+            <div style="font-size:0.6875rem;color:#22C55E;margin-top:3px;">↑ +5 from Dec</div>
+          </div>
+        </div>
+
+        <!-- AI insights for the month -->
+        <div class="sec-head"><span class="sec-title">AI Key Findings</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;font-size:0.875rem;flex-shrink:0;">✓</div>
+              <p style="font-size:0.8125rem;line-height:1.45;color:#C8C8E0;"><strong style="color:#22C55E;">Sleep improvement</strong> — Your average sleep duration increased 42 minutes. Deep sleep also improved, from 18% to 22%.</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(79,156,249,0.12);display:flex;align-items:center;justify-content:center;font-size:0.875rem;flex-shrink:0;">📈</div>
+              <p style="font-size:0.8125rem;line-height:1.45;color:#C8C8E0;"><strong style="color:#4F9CF9;">Fitness trend</strong> — Consistent 3-4 workouts/week drove your resting HR down 4bpm — a significant cardiovascular improvement.</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:0.875rem;flex-shrink:0;">⚠️</div>
+              <p style="font-size:0.8125rem;line-height:1.45;color:#C8C8E0;"><strong style="color:#F59E0B;">Watch</strong> — Blood pressure readings were elevated on days you had less than 6 hours of sleep.</p>
+            </div>
+          </div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Health Reports</span>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 20px 12px;">
+        <div style="font-size:1.375rem;font-weight:800;letter-spacing:-0.03em;">Notifications</div>
+        <span style="font-size:0.75rem;color:#4F9CF9;font-weight:600;">Mark all read</span>
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 44px - 78px);">
+        <!-- Today -->
+        <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;padding:4px 20px 8px;">Today</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin:0 12px;">
+          <!-- AI insight -->
+          <div style="background:#1A1A26;border:1px solid rgba(79,156,249,0.2);border-radius:18px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#4F9CF9,#7C6FCD);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">🤖</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#4F9CF9;">Pulse AI</div>
+                <div style="font-size:0.5625rem;color:#55556A;">9:32 AM</div>
+              </div>
+              <div style="font-size:0.8125rem;line-height:1.4;color:#E0E0F0;">Your health score improved to 84 — 3 points up from yesterday. Keep it up! 🎉</div>
+            </div>
+          </div>
+          <!-- Medication -->
+          <div style="background:#1A1A26;border:1px solid rgba(245,158,11,0.2);border-radius:18px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">💊</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#F59E0B;">Medication</div>
+                <div style="font-size:0.5625rem;color:#55556A;">12:00 PM</div>
+              </div>
+              <div style="font-size:0.8125rem;line-height:1.4;color:#E0E0F0;">Time for Vitamin D3 2000IU with lunch</div>
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <div style="flex:1;height:32px;border-radius:10px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:#22C55E;">✓ Taken</div>
+                <div style="flex:1;height:32px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:#8888A8;">Skip</div>
+              </div>
+            </div>
+          </div>
+          <!-- Goal milestone -->
+          <div style="background:#1A1A26;border:1px solid rgba(249,115,22,0.2);border-radius:18px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(249,115,22,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">🏃</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#F97316;">Goal Update</div>
+                <div style="font-size:0.5625rem;color:#55556A;">8:30 AM</div>
+              </div>
+              <div style="font-size:0.8125rem;line-height:1.4;color:#E0E0F0;">You've reached 76% of your 5K run goal! You're 1.2km away.</div>
+            </div>
+          </div>
+          <!-- Step goal -->
+          <div style="background:#1A1A26;border:1px solid rgba(16,185,129,0.2);border-radius:18px;padding:14px;display:flex;gap:10px;align-items:flex-start;opacity:0.7;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">👟</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#10B981;">Steps</div>
+                <div style="font-size:0.5625rem;color:#55556A;">7:00 AM</div>
+              </div>
+              <div style="font-size:0.8125rem;color:#8888A8;">Morning brief: Start your day with 30-min walk to reach 10,000 steps!</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yesterday -->
+        <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;padding:14px 20px 8px;">Yesterday</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin:0 12px;">
+          <div style="background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;display:flex;gap:10px;align-items:center;opacity:0.5;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(124,111,205,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">🏅</div>
+            <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:600;">Achievement unlocked: 7-Day Streak!</div><div style="font-size:0.75rem;color:#55556A;margin-top:1px;">Jan 14 · 10:00 PM</div></div>
+          </div>
+          <div style="background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;display:flex;gap:10px;align-items:center;opacity:0.5;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">❤️</div>
+            <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:600;">Heart rate elevated during work (88bpm)</div><div style="font-size:0.75rem;color:#55556A;margin-top:1px;">Jan 14 · 4:20 PM</div></div>
+          </div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Notifications</span>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div style="padding:4px 20px 12px;font-size:1.375rem;font-weight:800;letter-spacing:-0.03em;">Settings</div>
+      <div class="scroll" style="height:calc(100% - 50px - 44px - 78px);">
+        <!-- Account -->
+        <div style="margin:0 16px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;">
+          <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:center;">
+            <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#4F9CF9,#7C6FCD);display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:800;color:white;flex-shrink:0;">AJ</div>
+            <div style="flex:1;"><div style="font-size:0.9375rem;font-weight:700;">Arjun Mehta</div><div style="font-size:0.75rem;color:#8888A8;margin-top:1px;">arjun@example.com</div></div>
+            <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.06em;background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);border-radius:999px;padding:3px 8px;">⭐ PRO</div>
+          </div>
+        </div>
+
+        <!-- Settings groups -->
+        <div style="margin:10px 16px 0;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;">
+          <!-- Notifications -->
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(245,158,11,0.1);">🔔</div>
+              <span style="font-size:0.875rem;font-weight:500;">Notifications</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;color:#55556A;">All on</span><span class="chevron">›</span></div>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(124,111,205,0.1);">🌙</div>
+              <span style="font-size:0.875rem;font-weight:500;">Appearance</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;color:#55556A;">Dark</span><span class="chevron">›</span></div>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(16,185,129,0.1);">⌚</div>
+              <span style="font-size:0.875rem;font-weight:500;">Connected Devices</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;color:#55556A;">3 devices</span><span class="chevron">›</span></div>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(79,156,249,0.1);">🌐</div>
+              <span style="font-size:0.875rem;font-weight:500;">Units & Language</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;color:#55556A;">Metric · EN</span><span class="chevron">›</span></div>
+          </div>
+        </div>
+
+        <div style="margin:8px 16px 0;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;">
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(79,156,249,0.1);">🔒</div>
+              <span style="font-size:0.875rem;font-weight:500;">Privacy & Security</span>
+            </div>
+            <span class="chevron">›</span>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(16,185,129,0.1);">📤</div>
+              <span style="font-size:0.875rem;font-weight:500;">Export Health Data</span>
+            </div>
+            <span class="chevron">›</span>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(124,111,205,0.1);">🔗</div>
+              <span style="font-size:0.875rem;font-weight:500;">Integrations</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;color:#55556A;">Apple Health</span><span class="chevron">›</span></div>
+          </div>
+        </div>
+
+        <div style="margin:8px 16px 0;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;">
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(79,156,249,0.1);">❓</div>
+              <span style="font-size:0.875rem;font-weight:500;">Help & Support</span>
+            </div>
+            <span class="chevron">›</span>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(249,115,22,0.1);">💬</div>
+              <span style="font-size:0.875rem;font-weight:500;">Send Feedback</span>
+            </div>
+            <span class="chevron">›</span>
+          </div>
+          <div class="row-item">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(245,158,11,0.1);">ℹ️</div>
+              <span style="font-size:0.875rem;font-weight:500;">About Pulse+</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;color:#55556A;">v2.4.1</span><span class="chevron">›</span></div>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div style="margin:8px 16px 0;background:#1A1A26;border:1px solid rgba(239,68,68,0.1);border-radius:20px;overflow:hidden;">
+          <div class="row-item" style="border-bottom:none;">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="row-icon" style="background:rgba(239,68,68,0.1);">🚪</div>
+              <span style="font-size:0.875rem;font-weight:500;color:#EF4444;">Sign Out</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:16px;font-size:0.6875rem;color:#3A3A4A;">Pulse+ v2.4.1 · © 2025 Pulse Health Inc.</div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Settings</span>
+  </div>
+
+  <!-- PREMIUM / SUBSCRIPTION -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div style="height:100%;background:linear-gradient(175deg,#0D0A00 0%,#181200 40%,#120C00 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 20%,rgba(245,158,11,0.2) 0%,transparent 55%);"></div>
+
+        <div class="s-bar" style="background:transparent;"><span class="s-time" style="color:rgba(255,255,255,0.8);">9:41</span></div>
+
+        <!-- Hero -->
+        <div style="text-align:center;padding:8px 24px 20px;position:relative;z-index:1;">
+          <div style="font-size:2.5rem;margin-bottom:8px;animation:float 3s ease-in-out infinite;">⭐</div>
+          <div style="font-size:1.5rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,#F59E0B,#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Pulse+ Premium</div>
+          <div style="font-size:0.875rem;color:rgba(255,255,255,0.5);margin-top:4px;">Unlock your full health potential</div>
+        </div>
+
+        <!-- Features -->
+        <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:0 16px;">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:20px;padding:16px;margin-bottom:10px;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🤖</div>
+                <div><div style="font-size:0.875rem;font-weight:600;color:#F0F0F8;">Unlimited AI Health Assistant</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Chat, analyse & get insights 24/7</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(79,156,249,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">📊</div>
+                <div><div style="font-size:0.875rem;font-weight:600;color:#F0F0F8;">Advanced Analytics & Reports</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Monthly reports, correlation graphs</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">👨‍👩‍👧</div>
+                <div><div style="font-size:0.875rem;font-weight:600;color:#F0F0F8;">Family Health Sharing</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Up to 6 family members</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(124,111,205,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">📄</div>
+                <div><div style="font-size:0.875rem;font-weight:600;color:#F0F0F8;">Doctor Export PDF</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Share your health with doctors</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(249,115,22,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🧬</div>
+                <div><div style="font-size:0.875rem;font-weight:600;color:#F0F0F8;">Advanced Biometric Tracking</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Glucose, HbA1c, full bloodwork</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🆘</div>
+                <div><div style="font-size:0.875rem;font-weight:600;color:#F0F0F8;">Emergency SOS + Medical ID</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Automatic alerts to contacts</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing options -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:14px;text-align:center;">
+              <div style="font-size:0.5625rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#F59E0B;margin-bottom:6px;">Monthly</div>
+              <div style="font-size:1.5rem;font-weight:900;color:#F0F0F8;">$4.99</div>
+              <div style="font-size:0.6875rem;color:#8888A8;">per month</div>
+            </div>
+            <div style="background:rgba(245,158,11,0.1);border:2px solid rgba(245,158,11,0.4);border-radius:16px;padding:14px;text-align:center;position:relative;">
+              <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#F59E0B,#F97316);border-radius:999px;padding:2px 10px;font-size:0.5625rem;font-weight:800;color:white;white-space:nowrap;">SAVE 33%</div>
+              <div style="font-size:0.5625rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#F59E0B;margin-bottom:6px;">Yearly</div>
+              <div style="font-size:1.5rem;font-weight:900;color:#F0F0F8;">$39.99</div>
+              <div style="font-size:0.6875rem;color:#F59E0B;font-weight:600;">$3.33 / month</div>
+            </div>
+          </div>
+
+          <div style="height:52px;border-radius:999px;background:linear-gradient(135deg,#F59E0B,#F97316);display:flex;align-items:center;justify-content:center;font-size:0.9375rem;font-weight:800;color:white;box-shadow:0 8px 24px rgba(245,158,11,0.4);margin-bottom:8px;">
+            Start Free 7-Day Trial
+          </div>
+          <div style="text-align:center;font-size:0.6875rem;color:rgba(255,255,255,0.35);padding-bottom:16px;">Cancel anytime · No charge until day 8</div>
+        </div>
+      </div>
+    </div></div>
+    <span class="screen-label">Premium</span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse+ · AI Health Tracker</title>
+<style>
+  /* ── Reset & Base ──────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: #080810;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+    gap: 60px;
+    color: #F0F0F8;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  .app-header {
+    text-align: center;
+    animation: fadeSlideDown 0.6s ease-out;
+  }
+  .app-header .logo {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .app-header .logo-mark {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(79,156,249,0.4);
+  }
+  .app-header .logo-mark svg { width: 22px; height: 22px; }
+  .app-header h1 {
+    font-size: 2rem; font-weight: 800; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #F0F0F8 40%, #8888A8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .app-header p { color: #8888A8; font-size: 0.875rem; margin-top: 4px; }
+
+  /* ── Phone Frame ─────────────────────────────────────────── */
+  .phone-showcase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .phone-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: fadeSlideUp 0.6s ease-out both;
+  }
+  .phone-wrapper:nth-child(1) { animation-delay: 0.05s; }
+  .phone-wrapper:nth-child(2) { animation-delay: 0.12s; }
+  .phone-wrapper:nth-child(3) { animation-delay: 0.19s; }
+  .phone-wrapper:nth-child(4) { animation-delay: 0.26s; }
+  .phone-wrapper:nth-child(5) { animation-delay: 0.33s; }
+  .phone-wrapper:nth-child(6) { animation-delay: 0.40s; }
+
+  .screen-label {
+    font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #55556A;
+  }
+
+  .phone {
+    width: 375px;
+    height: 812px;
+    background: #111118;
+    border-radius: 54px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    box-shadow:
+      0 0 0 6px #0A0A12,
+      0 0 0 7.5px rgba(255,255,255,0.08),
+      0 40px 80px rgba(0,0,0,0.8),
+      inset 0 1px 0 rgba(255,255,255,0.12);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Dynamic island */
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 12px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #08080F;
+    border-radius: 20px;
+    z-index: 100;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  .screen {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    position: relative;
+    border-radius: 54px;
+  }
+
+  /* ── Animations ─────────────────────────────────────────── */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.25); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.15); }
+    56% { transform: scale(1); }
+  }
+  @keyframes draw-line {
+    from { stroke-dashoffset: 400; }
+    to   { stroke-dashoffset: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes shimmer {
+    from { background-position: -400px 0; }
+    to   { background-position: 400px 0; }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes ripple {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  @keyframes wave {
+    0%, 60%, 100% { transform: scaleY(1); }
+    30% { transform: scaleY(1.8); }
+  }
+
+  /* ── Common Screen Styles ────────────────────────────────── */
+  .s-bg { background: #08080F; }
+  .s-bg-elevated { background: #111118; }
+  .s-status-bar {
+    height: 54px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 0 24px 8px;
+    position: relative; z-index: 10;
+  }
+  .s-time { font-size: 0.8125rem; font-weight: 600; color: #F0F0F8; }
+  .s-icons { display: flex; gap: 6px; align-items: center; }
+  .s-icons svg { width: 16px; height: 16px; fill: #F0F0F8; }
+
+  .s-scroll {
+    height: calc(100% - 54px - 80px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .s-scroll::-webkit-scrollbar { display: none; }
+
+  .s-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 82px;
+    background: rgba(11, 11, 18, 0.94);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 8px 16px;
+  }
+  .s-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .s-nav-item svg { width: 22px; height: 22px; }
+  .s-nav-item span { font-size: 0.625rem; font-weight: 500; }
+  .s-nav-item.active { color: #4F9CF9; }
+  .s-nav-item:not(.active) { color: #55556A; }
+
+  .card {
+    background: #1A1A26;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+
+  /* gradient cards */
+  .card-gradient-blue    { background: linear-gradient(135deg, #4F9CF9 0%, #7C6FCD 100%); }
+  .card-gradient-health  { background: linear-gradient(135deg, #10B981 0%, #06B6D4 100%); }
+  .card-gradient-energy  { background: linear-gradient(135deg, #F97316 0%, #EF4444 100%); }
+  .card-gradient-sleep   { background: linear-gradient(135deg, #7C6FCD 0%, #312E81 100%); }
+  .card-gradient-calm    { background: linear-gradient(135deg, #06B6D4 0%, #4F9CF9 100%); }
+
+  /* Tags & Badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 0.625rem; font-weight: 600; letter-spacing: 0.06em;
+  }
+  .badge-blue   { background: rgba(79,156,249,0.18); color: #4F9CF9; }
+  .badge-green  { background: rgba(16,185,129,0.18); color: #10B981; }
+  .badge-orange { background: rgba(249,115,22,0.18); color: #F97316; }
+  .badge-red    { background: rgba(239,68,68,0.18);  color: #EF4444; }
+  .badge-purple { background: rgba(124,111,205,0.18); color: #7C6FCD; }
+
+  /* Metric pill */
+  .metric-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 0.6875rem; color: #8888A8;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 36px; height: 36px; border-radius: 999px;
+    overflow: hidden; flex-shrink: 0;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.875rem; color: white;
+  }
+
+  /* ══════════════════════════════════════════════════
+     SCREEN 1 — HOME DASHBOARD
+  ══════════════════════════════════════════════════ */
+  .home-screen {
+    width: 100%; height: 100%;
+    background: #08080F;
+    position: relative;
+  }
+
+  .home-bg-orb {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: 0.25;
+  }
+  .orb-1 { width: 280px; height: 280px; top: -60px; left: -80px; background: #4F9CF9; }
+  .orb-2 { width: 200px; height: 200px; top: 120px; right: -60px; background: #7C6FCD; }
+  .orb-3 { width: 160px; height: 160px; bottom: 200px; left: 40px; background: #10B981; opacity: 0.15; }
+
+  .home-greeting {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 22px 0;
+  }
+  .home-greeting h2 {
+    font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em;
+  }
+  .home-greeting p { font-size: 0.8125rem; color: #8888A8; margin-top: 1px; }
+
+  /* Health Score Ring */
+  .health-score-section {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 16px 22px 8px;
+    position: relative;
+  }
+
+  .score-ring-container {
+    position: relative; width: 180px; height: 180px;
+    animation: float 4s ease-in-out infinite;
+  }
+  .score-ring-container svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+  .score-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+  }
+  .score-number {
+    font-size: 2.5rem; font-weight: 800; letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .score-label { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #8888A8; }
+  .score-sub { font-size: 0.6875rem; color: #22C55E; font-weight: 500; margin-top: 2px; }
+
+  /* AI Insight Card */
+  .ai-card {
+    margin: 8px 16px;
+    background: linear-gradient(135deg, rgba(79,156,249,0.12) 0%, rgba(124,111,205,0.12) 100%);
+    border: 1px solid rgba(79,156,249,0.2);
+    border-radius: 20px;
+    padding: 14px 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .ai-icon {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(79,156,249,0.3);
+  }
+  .ai-card p { font-size: 0.8125rem; line-height: 1.45; color: #C8C8E0; }
+  .ai-card strong { color: #F0F0F8; }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 4px 16px;
+  }
+  .metric-card {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 14px;
+    position: relative; overflow: hidden;
+  }
+  .metric-card::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 2px;
+    border-radius: 0 0 20px 20px;
+  }
+  .metric-card.heart::after { background: linear-gradient(90deg, #EF4444, #FB7185); }
+  .metric-card.oxygen::after { background: linear-gradient(90deg, #06B6D4, #4F9CF9); }
+  .metric-card.sleep::after { background: linear-gradient(90deg, #7C6FCD, #4F9CF9); }
+  .metric-card.steps::after { background: linear-gradient(90deg, #10B981, #22C55E); }
+
+  .metric-icon { font-size: 1.1rem; margin-bottom: 8px; }
+  .metric-name { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8888A8; }
+  .metric-val { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; color: #F0F0F8; line-height: 1.1; margin-top: 2px; }
+  .metric-val span { font-size: 0.75rem; font-weight: 500; color: #55556A; }
+  .metric-change { font-size: 0.6875rem; color: #22C55E; margin-top: 3px; }
+  .metric-change.down { color: #EF4444; }
+
+  .metric-sparkline { margin-top: 8px; }
+
+  /* Daily Rings */
+  .rings-section { padding: 4px 16px 8px; }
+  .rings-card {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .rings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .rings-header h3 { font-size: 0.875rem; font-weight: 600; }
+  .rings-header span { font-size: 0.75rem; color: #4F9CF9; }
+  .rings-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .ring-mini { flex-shrink: 0; }
+  .ring-info { flex: 1; }
+  .ring-label { font-size: 0.75rem; color: #8888A8; }
+  .ring-progress { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .ring-bar-bg { flex: 1; height: 5px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+  .ring-bar { height: 100%; border-radius: 999px; }
+  .ring-pct { font-size: 0.6875rem; font-weight: 600; color: #F0F0F8; min-width: 32px; text-align: right; }
+
+  /* ══════════════════════════════════════════════════
+     SCREEN 2 — HEART RATE
+  ══════════════════════════════════════════════════ */
+  .hr-hero {
+    background: linear-gradient(135deg, #1A0A0A 0%, #2A0E1A 100%);
+    margin: 8px 16px;
+    border-radius: 24px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hr-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 20%, rgba(239,68,68,0.2) 0%, transparent 60%);
+  }
+
+  .hr-live-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 999px; padding: 3px 10px;
+    font-size: 0.625rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #EF4444;
+    margin-bottom: 12px;
+  }
+  .hr-live-dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: #EF4444;
+    animation: pulse-ring 1.2s ease-in-out infinite;
+  }
+
+  .hr-value {
+    font-size: 4rem; font-weight: 900; letter-spacing: -0.05em;
+    line-height: 1; color: #F0F0F8; margin-bottom: 4px;
+  }
+  .hr-value span { font-size: 1.25rem; font-weight: 400; color: #8888A8; }
+  .hr-zone { font-size: 0.8125rem; color: #FB7185; font-weight: 500; }
+  .hr-icon { font-size: 2rem; animation: heartbeat 1.5s ease-in-out infinite; display: inline-block; }
+
+  .hr-waveform { margin-top: 16px; }
+
+  .hr-stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; padding: 8px 16px;
+  }
+  .hr-stat {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 12px; text-align: center;
+  }
+  .hr-stat-icon { font-size: 1.1rem; }
+  .hr-stat-label { font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #55556A; margin-top: 6px; }
+  .hr-stat-val { font-size: 1.125rem; font-weight: 700; color: #F0F0F8; margin-top: 2px; }
+
+  .hr-zones-card {
+    margin: 4px 16px;
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  .hr-zone-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .hr-zone-row:last-child { border-bottom: none; }
+  .zone-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+  .zone-name { font-size: 0.8125rem; font-weight: 500; flex: 1; }
+  .zone-range { font-size: 0.75rem; color: #55556A; }
+  .zone-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+  .zone-bar { height: 100%; border-radius: 999px; }
+  .zone-time { font-size: 0.6875rem; color: #8888A8; min-width: 36px; text-align: right; }
+
+  /* ══════════════════════════════════════════════════
+     SCREEN 3 — SLEEP TRACKING
+  ══════════════════════════════════════════════════ */
+  .sleep-hero {
+    background: linear-gradient(165deg, #0D0B1E 0%, #1A1535 50%, #0E1630 100%);
+    padding: 20px 22px;
+    position: relative; overflow: hidden;
+  }
+  .sleep-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 0%, rgba(124,111,205,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(79,156,249,0.15) 0%, transparent 40%);
+  }
+
+  .sleep-score-row {
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative;
+  }
+  .sleep-score-big { font-size: 4.5rem; font-weight: 900; letter-spacing: -0.05em; line-height: 1; }
+  .sleep-score-right { text-align: right; }
+  .sleep-duration { font-size: 1.875rem; font-weight: 700; letter-spacing: -0.03em; }
+  .sleep-duration span { font-size: 0.875rem; color: #8888A8; font-weight: 400; }
+  .sleep-quality { font-size: 0.75rem; color: #7C6FCD; font-weight: 600; letter-spacing: 0.06em; margin-top: 4px; }
+  .sleep-time-range { font-size: 0.75rem; color: #8888A8; margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+  .sleep-time-range span { color: #F0F0F8; font-weight: 500; }
+
+  .sleep-stages-card {
+    margin: 8px 16px;
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  .sleep-stage-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0;
+  }
+  .stage-color { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .stage-name { font-size: 0.8125rem; font-weight: 500; min-width: 60px; }
+  .stage-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+  .stage-bar { height: 100%; border-radius: 999px; }
+  .stage-dur { font-size: 0.6875rem; color: #8888A8; min-width: 36px; text-align: right; }
+  .stage-pct { font-size: 0.6875rem; font-weight: 600; min-width: 30px; text-align: right; }
+
+  .sleep-tips-card {
+    margin: 4px 16px;
+    background: linear-gradient(135deg, rgba(124,111,205,0.12) 0%, rgba(79,156,249,0.08) 100%);
+    border: 1px solid rgba(124,111,205,0.2);
+    border-radius: 20px;
+    padding: 14px 16px;
+  }
+
+  .sleep-insight { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .sleep-insight:last-child { margin-bottom: 0; }
+  .insight-icon { font-size: 1rem; margin-top: 1px; }
+  .insight-text { font-size: 0.8125rem; line-height: 1.45; color: #C8C8E0; }
+  .insight-text strong { color: #F0F0F8; }
+
+  .sleep-week-card {
+    margin: 4px 16px 8px;
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  /* ══════════════════════════════════════════════════
+     SCREEN 4 — AI HEALTH ASSISTANT
+  ══════════════════════════════════════════════════ */
+  .ai-screen {
+    background: #08080F;
+    height: 100%;
+  }
+  .ai-header {
+    padding: 12px 20px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .ai-avatar {
+    width: 42px; height: 42px; border-radius: 14px;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(79,156,249,0.35);
+    flex-shrink: 0;
+  }
+  .ai-header-info h3 { font-size: 0.9375rem; font-weight: 700; }
+  .ai-header-info p { font-size: 0.75rem; color: #22C55E; }
+
+  .ai-messages {
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 14px;
+    height: calc(100% - 120px - 70px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .msg-row { display: flex; gap: 8px; align-items: flex-start; }
+  .msg-row.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 28px; height: 28px; border-radius: 999px; flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .msg-bubble {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 0.8125rem; line-height: 1.5;
+  }
+  .msg-bubble.ai {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #E0E0F0;
+    border-bottom-left-radius: 4px;
+  }
+  .msg-bubble.user {
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg-time { font-size: 0.5625rem; color: #55556A; margin-top: 4px; text-align: right; }
+  .msg-time.ai { text-align: left; }
+
+  .ai-suggestion-chips {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 4px 16px 8px;
+  }
+  .chip {
+    background: rgba(79,156,249,0.1);
+    border: 1px solid rgba(79,156,249,0.2);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.75rem; color: #4F9CF9; font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .ai-input-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 70px;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    background: rgba(11,11,18,0.96);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ai-input {
+    flex: 1; height: 44px;
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 22px;
+    display: flex; align-items: center;
+    padding: 0 16px;
+    font-size: 0.8125rem; color: #8888A8;
+  }
+  .ai-send-btn {
+    width: 40px; height: 40px; border-radius: 999px;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(79,156,249,0.35);
+    flex-shrink: 0;
+  }
+
+  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+  .typing-dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: #8888A8;
+    animation: wave 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ══════════════════════════════════════════════════
+     SCREEN 5 — MEDICATION REMINDER
+  ══════════════════════════════════════════════════ */
+  .med-hero {
+    background: linear-gradient(135deg, #0A1628 0%, #0E1A2E 100%);
+    margin: 8px 16px;
+    border-radius: 24px;
+    padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .med-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 0%, rgba(79,156,249,0.2) 0%, transparent 50%);
+  }
+  .med-next { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #4F9CF9; margin-bottom: 8px; }
+  .med-pill-name { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .med-pill-dose { font-size: 0.875rem; color: #8888A8; margin-top: 2px; }
+  .med-countdown {
+    display: flex; align-items: baseline; gap: 4px; margin-top: 12px;
+    font-size: 2.25rem; font-weight: 800; letter-spacing: -0.04em; color: #4F9CF9;
+  }
+  .med-countdown span { font-size: 0.875rem; color: #8888A8; font-weight: 400; }
+  .med-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .med-btn-taken {
+    flex: 1; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #10B981, #06B6D4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8125rem; font-weight: 600; color: white;
+    gap: 6px;
+  }
+  .med-btn-skip {
+    height: 40px; width: 40px; border-radius: 12px;
+    background: rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+
+  .med-list { padding: 4px 16px; }
+  .med-item {
+    display: flex; align-items: center; gap: 12px;
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .med-item-icon {
+    width: 42px; height: 42px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .med-item-info { flex: 1; }
+  .med-item-name { font-size: 0.9375rem; font-weight: 600; }
+  .med-item-dose { font-size: 0.75rem; color: #8888A8; margin-top: 2px; }
+  .med-item-time { font-size: 0.75rem; color: #55556A; margin-top: 3px; }
+  .med-status-check { font-size: 1.1rem; }
+
+  /* ══════════════════════════════════════════════════
+     SCREEN 6 — PROFILE / HEALTH GOALS
+  ══════════════════════════════════════════════════ */
+  .profile-hero {
+    background: linear-gradient(165deg, #0D1228 0%, #111A30 100%);
+    padding: 20px 22px 28px;
+    position: relative; overflow: hidden;
+  }
+  .profile-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 60% 0%, rgba(124,111,205,0.25) 0%, transparent 50%);
+  }
+
+  .profile-row { display: flex; align-items: center; gap: 14px; position: relative; }
+  .profile-avatar {
+    width: 70px; height: 70px; border-radius: 22px;
+    background: linear-gradient(135deg, #4F9CF9, #7C6FCD);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.875rem; font-weight: 800; color: white;
+    box-shadow: 0 8px 24px rgba(79,156,249,0.3);
+  }
+  .profile-info h2 { font-size: 1.3125rem; font-weight: 700; }
+  .profile-info p { font-size: 0.8125rem; color: #8888A8; margin-top: 2px; }
+  .profile-premium {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.15));
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 999px; padding: 3px 10px; margin-top: 6px;
+    font-size: 0.625rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #F59E0B;
+  }
+
+  .profile-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin: 12px 16px 4px;
+  }
+  .profile-stat {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 14px 12px; text-align: center;
+  }
+  .profile-stat-val { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; }
+  .profile-stat-label { font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #55556A; margin-top: 3px; }
+
+  .goals-section { padding: 4px 16px; }
+  .goals-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .goals-header h3 { font-size: 0.9375rem; font-weight: 700; }
+  .goals-header span { font-size: 0.75rem; color: #4F9CF9; }
+
+  .goal-card {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 14px; margin-bottom: 8px;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .goal-icon-wrap {
+    width: 44px; height: 44px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .goal-info { flex: 1; }
+  .goal-title { font-size: 0.875rem; font-weight: 600; }
+  .goal-subtitle { font-size: 0.75rem; color: #8888A8; margin-top: 2px; }
+  .goal-bar-wrap { height: 5px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+  .goal-bar { height: 100%; border-radius: 999px; }
+  .goal-pct { font-size: 0.875rem; font-weight: 700; flex-shrink: 0; }
+
+  /* ── Section Headers ─────────────────────────────────── */
+  .section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 22px 8px;
+  }
+  .section-title { font-size: 1.0625rem; font-weight: 700; }
+  .section-link { font-size: 0.8125rem; color: #4F9CF9; font-weight: 500; }
+
+  /* ── Back Button ─────────────────────────────────────── */
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    color: #4F9CF9; font-size: 0.875rem; font-weight: 500;
+    padding: 8px 22px;
+  }
+  .back-btn svg { width: 16px; height: 16px; }
+
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="white"/>
+      </svg>
+    </div>
+    <h1>Pulse+</h1>
+  </div>
+  <p>AI-Powered Health Tracker · Complete Screen Design</p>
+</div>
+
+<div class="phone-showcase">
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 1 — HOME DASHBOARD
+  ══════════════════════════════════════════ -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="screen home-screen s-bg">
+        <!-- BG orbs -->
+        <div class="home-bg-orb orb-1"></div>
+        <div class="home-bg-orb orb-2"></div>
+        <div class="home-bg-orb orb-3"></div>
+
+        <!-- Status Bar -->
+        <div class="s-status-bar">
+          <span class="s-time">9:41</span>
+          <div class="s-icons">
+            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
+
+        <!-- Scrollable content -->
+        <div class="s-scroll">
+
+          <!-- Greeting -->
+          <div class="home-greeting">
+            <div>
+              <h2>Good morning, Arjun 👋</h2>
+              <p>Wednesday, 15 January · <span style="color:#22C55E">Feeling great</span></p>
+            </div>
+            <div class="avatar">AJ</div>
+          </div>
+
+          <!-- Health Score Ring -->
+          <div class="health-score-section">
+            <div class="score-ring-container">
+              <svg viewBox="0 0 180 180">
+                <!-- Track rings -->
+                <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(79,156,249,0.12)" stroke-width="10"/>
+                <circle cx="90" cy="90" r="62" fill="none" stroke="rgba(16,185,129,0.12)" stroke-width="10"/>
+                <circle cx="90" cy="90" r="46" fill="none" stroke="rgba(249,115,22,0.12)" stroke-width="10"/>
+                <!-- Progress rings -->
+                <circle cx="90" cy="90" r="78" fill="none"
+                  stroke="url(#grad1)" stroke-width="10"
+                  stroke-linecap="round"
+                  stroke-dasharray="490"
+                  stroke-dashoffset="98"
+                  style="animation: draw-line 1.2s ease-out both 0.2s"/>
+                <circle cx="90" cy="90" r="62" fill="none"
+                  stroke="url(#grad2)" stroke-width="10"
+                  stroke-linecap="round"
+                  stroke-dasharray="390"
+                  stroke-dashoffset="58"
+                  style="animation: draw-line 1.2s ease-out both 0.35s"/>
+                <circle cx="90" cy="90" r="46" fill="none"
+                  stroke="url(#grad3)" stroke-width="10"
+                  stroke-linecap="round"
+                  stroke-dasharray="289"
+                  stroke-dashoffset="86"
+                  style="animation: draw-line 1.2s ease-out both 0.5s"/>
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#4F9CF9"/>
+                    <stop offset="100%" stop-color="#7C6FCD"/>
+                  </linearGradient>
+                  <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#10B981"/>
+                    <stop offset="100%" stop-color="#06B6D4"/>
+                  </linearGradient>
+                  <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#F97316"/>
+                    <stop offset="100%" stop-color="#EF4444"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="score-center">
+                <div class="score-number">84</div>
+                <div class="score-label">Health Score</div>
+                <div class="score-sub">▲ 3 from yesterday</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Insight -->
+          <div class="ai-card">
+            <div class="ai-icon">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                <path d="M12 2a5 5 0 015 5v1a5 5 0 01-10 0V7a5 5 0 015-5z" fill="white" opacity=".8"/>
+                <path d="M3 20a9 9 0 0118 0" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+              </svg>
+            </div>
+            <div>
+              <p><strong>Your HRV is 8% above baseline.</strong> Great recovery overnight — your body is primed for a moderate-high intensity workout today.</p>
+            </div>
+          </div>
+
+          <!-- Metrics Grid -->
+          <div class="metrics-grid">
+            <!-- Heart Rate -->
+            <div class="metric-card heart">
+              <div class="metric-icon">❤️</div>
+              <div class="metric-name">Heart Rate</div>
+              <div class="metric-val">72 <span>bpm</span></div>
+              <div class="metric-change">Normal range</div>
+              <div class="metric-sparkline">
+                <svg width="100%" height="28" viewBox="0 0 140 28">
+                  <polyline points="0,20 20,18 40,22 55,8 65,16 80,14 100,18 120,10 140,16"
+                    fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    style="animation: draw-line 1s ease-out both 0.4s"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Blood Oxygen -->
+            <div class="metric-card oxygen">
+              <div class="metric-icon">💧</div>
+              <div class="metric-name">Blood Oxygen</div>
+              <div class="metric-val">98 <span>%</span></div>
+              <div class="metric-change">Excellent</div>
+              <div class="metric-sparkline">
+                <svg width="100%" height="28" viewBox="0 0 140 28">
+                  <polyline points="0,14 20,12 40,14 60,13 80,14 100,12 120,14 140,13"
+                    fill="none" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    style="animation: draw-line 1s ease-out both 0.5s"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Sleep -->
+            <div class="metric-card sleep">
+              <div class="metric-icon">🌙</div>
+              <div class="metric-name">Sleep</div>
+              <div class="metric-val">7.2 <span>hrs</span></div>
+              <div class="metric-change">Score: 78/100</div>
+              <div class="metric-sparkline">
+                <svg width="100%" height="28" viewBox="0 0 140 28">
+                  <polyline points="0,22 20,14 40,10 70,8 100,12 120,18 140,20"
+                    fill="none" stroke="#7C6FCD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    style="animation: draw-line 1s ease-out both 0.6s"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Steps -->
+            <div class="metric-card steps">
+              <div class="metric-icon">👟</div>
+              <div class="metric-name">Steps</div>
+              <div class="metric-val">6,842 <span></span></div>
+              <div class="metric-change">↑ Goal: 10k</div>
+              <div class="metric-sparkline">
+                <svg width="100%" height="28" viewBox="0 0 140 28">
+                  <rect x="0" y="20" width="16" height="8" rx="3" fill="#10B981" opacity=".4"/>
+                  <rect x="20" y="16" width="16" height="12" rx="3" fill="#10B981" opacity=".5"/>
+                  <rect x="40" y="12" width="16" height="16" rx="3" fill="#10B981" opacity=".6"/>
+                  <rect x="60" y="10" width="16" height="18" rx="3" fill="#10B981" opacity=".7"/>
+                  <rect x="80" y="14" width="16" height="14" rx="3" fill="#10B981" opacity=".6"/>
+                  <rect x="100" y="8" width="16" height="20" rx="3" fill="#10B981" opacity=".8"/>
+                  <rect x="120" y="12" width="16" height="16" rx="3" fill="#10B981"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Rings -->
+          <div class="rings-section">
+            <div class="rings-card">
+              <div class="rings-header">
+                <h3>Today's Progress</h3>
+                <span>View all →</span>
+              </div>
+              <!-- Move -->
+              <div class="rings-row">
+                <svg class="ring-mini" width="36" height="36" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(249,115,22,0.2)" stroke-width="5"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="url(#rg1)" stroke-width="5"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="31"
+                    transform="rotate(-90 18 18)"/>
+                  <defs><linearGradient id="rg1" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#F97316"/><stop offset="100%" stop-color="#EF4444"/>
+                  </linearGradient></defs>
+                </svg>
+                <div class="ring-info">
+                  <div class="ring-label">Move · 420 / 600 kcal</div>
+                  <div class="ring-progress">
+                    <div class="ring-bar-bg"><div class="ring-bar" style="width:70%; background:linear-gradient(90deg,#F97316,#EF4444)"></div></div>
+                    <div class="ring-pct" style="color:#F97316">70%</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Exercise -->
+              <div class="rings-row">
+                <svg class="ring-mini" width="36" height="36" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(34,197,94,0.2)" stroke-width="5"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#22C55E" stroke-width="5"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="18"
+                    transform="rotate(-90 18 18)"/>
+                </svg>
+                <div class="ring-info">
+                  <div class="ring-label">Exercise · 25 / 30 min</div>
+                  <div class="ring-progress">
+                    <div class="ring-bar-bg"><div class="ring-bar" style="width:83%; background:#22C55E"></div></div>
+                    <div class="ring-pct" style="color:#22C55E">83%</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Stand -->
+              <div class="rings-row">
+                <svg class="ring-mini" width="36" height="36" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(6,182,212,0.2)" stroke-width="5"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#06B6D4" stroke-width="5"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="35"
+                    transform="rotate(-90 18 18)"/>
+                </svg>
+                <div class="ring-info">
+                  <div class="ring-label">Stand · 8 / 12 hours</div>
+                  <div class="ring-progress">
+                    <div class="ring-bar-bg"><div class="ring-bar" style="width:67%; background:#06B6D4"></div></div>
+                    <div class="ring-pct" style="color:#06B6D4">67%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height: 16px;"></div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="s-nav">
+          <div class="s-nav-item active">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+          </div>
+          <div class="s-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>Health</span>
+          </div>
+          <div class="s-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            <span>Workouts</span>
+          </div>
+          <div class="s-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Care</span>
+          </div>
+          <div class="s-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">Home Dashboard</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 2 — HEART RATE
+  ══════════════════════════════════════════ -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="screen s-bg">
+        <div class="s-status-bar">
+          <span class="s-time">9:41</span>
+          <div class="s-icons">
+            <svg viewBox="0 0 24 24" fill="#F0F0F8" width="16" height="16"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          </div>
+        </div>
+
+        <div class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Heart Rate
+        </div>
+
+        <div class="s-scroll" style="height: calc(100% - 100px - 82px)">
+
+          <!-- Hero Card -->
+          <div class="hr-hero" style="margin: 4px 16px;">
+            <div class="hr-live-badge"><div class="hr-live-dot"></div>Live</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div class="hr-value">72 <span>bpm</span></div>
+                <div class="hr-zone">🫀 Resting · Fat Burn Zone</div>
+              </div>
+              <div class="hr-icon">❤️</div>
+            </div>
+            <!-- Waveform SVG -->
+            <div class="hr-waveform">
+              <svg width="100%" height="60" viewBox="0 0 310 60" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#EF4444" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,35 L30,35 L40,35 L50,10 L55,50 L62,35 L80,35 L90,35 L100,10 L105,50 L112,35 L130,35 L140,35 L150,10 L155,50 L162,35 L180,35 L190,35 L200,10 L205,50 L212,35 L230,35 L240,35 L250,10 L255,50 L262,35 L285,35 L310,35"
+                  fill="none" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"
+                  style="stroke-dasharray: 800; animation: draw-line 2s ease-out both 0.3s;"/>
+                <path d="M0,35 L30,35 L40,35 L50,10 L55,50 L62,35 L80,35 L90,35 L100,10 L105,50 L112,35 L130,35 L140,35 L150,10 L155,50 L162,35 L180,35 L190,35 L200,10 L205,50 L212,35 L230,35 L240,35 L250,10 L255,50 L262,35 L285,35 L310,35 L310,60 L0,60 Z"
+                  fill="url(#hrGrad)"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Today Stats -->
+          <div class="hr-stats-grid">
+            <div class="hr-stat">
+              <div class="hr-stat-icon">📉</div>
+              <div class="hr-stat-label">Resting</div>
+              <div class="hr-stat-val" style="color:#10B981">58</div>
+            </div>
+            <div class="hr-stat">
+              <div class="hr-stat-icon">📊</div>
+              <div class="hr-stat-label">Avg Today</div>
+              <div class="hr-stat-val" style="color:#4F9CF9">74</div>
+            </div>
+            <div class="hr-stat">
+              <div class="hr-stat-icon">🏃</div>
+              <div class="hr-stat-label">Peak</div>
+              <div class="hr-stat-val" style="color:#EF4444">142</div>
+            </div>
+            <div class="hr-stat">
+              <div class="hr-stat-icon">🫀</div>
+              <div class="hr-stat-label">HRV</div>
+              <div class="hr-stat-val" style="color:#7C6FCD">52ms</div>
+            </div>
+            <div class="hr-stat">
+              <div class="hr-stat-icon">⏱️</div>
+              <div class="hr-stat-label">In Zone</div>
+              <div class="hr-stat-val" style="color:#F59E0B">28m</div>
+            </div>
+            <div class="hr-stat">
+              <div class="hr-stat-icon">🔥</div>
+              <div class="hr-stat-label">VO2 Max</div>
+              <div class="hr-stat-val" style="color:#F97316">44.2</div>
+            </div>
+          </div>
+
+          <!-- Weekly Chart -->
+          <div class="section-header"><span class="section-title">7-Day Trend</span></div>
+          <div style="margin: 0 16px; background:#1A1A26; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:16px;">
+            <svg width="100%" height="80" viewBox="0 0 310 80">
+              <defs>
+                <linearGradient id="hrArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#EF4444" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid lines -->
+              <line x1="0" y1="20" x2="310" y2="20" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="40" x2="310" y2="40" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="60" x2="310" y2="60" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <!-- Area -->
+              <path d="M10,55 L55,50 L100,45 L145,30 L190,40 L235,35 L280,38 L280,80 L10,80 Z"
+                fill="url(#hrArea)"/>
+              <!-- Line -->
+              <path d="M10,55 L55,50 L100,45 L145,30 L190,40 L235,35 L280,38"
+                fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round"
+                style="stroke-dasharray:400; animation: draw-line 1.2s ease-out both 0.4s"/>
+              <!-- Dots -->
+              <circle cx="145" cy="30" r="4" fill="#EF4444" stroke="#08080F" stroke-width="2"/>
+              <!-- Labels -->
+              <text x="10"  y="76" fill="#55556A" font-size="9" text-anchor="middle">Mon</text>
+              <text x="55"  y="76" fill="#55556A" font-size="9" text-anchor="middle">Tue</text>
+              <text x="100" y="76" fill="#55556A" font-size="9" text-anchor="middle">Wed</text>
+              <text x="145" y="76" fill="#4F9CF9" font-size="9" text-anchor="middle">Thu</text>
+              <text x="190" y="76" fill="#55556A" font-size="9" text-anchor="middle">Fri</text>
+              <text x="235" y="76" fill="#55556A" font-size="9" text-anchor="middle">Sat</text>
+              <text x="280" y="76" fill="#55556A" font-size="9" text-anchor="middle">Sun</text>
+            </svg>
+          </div>
+
+          <!-- Heart Rate Zones -->
+          <div class="section-header"><span class="section-title">Heart Rate Zones</span></div>
+          <div class="hr-zones-card">
+            <div class="hr-zone-row">
+              <div class="zone-dot" style="background:#06B6D4"></div>
+              <div class="zone-name">Zone 1 · Rest</div>
+              <div class="zone-range">50–90</div>
+              <div class="zone-bar-wrap"><div class="zone-bar" style="width:100%;background:#06B6D4"></div></div>
+              <div class="zone-time">3h 20m</div>
+            </div>
+            <div class="hr-zone-row">
+              <div class="zone-dot" style="background:#22C55E"></div>
+              <div class="zone-name">Zone 2 · Fat Burn</div>
+              <div class="zone-range">90–115</div>
+              <div class="zone-bar-wrap"><div class="zone-bar" style="width:65%;background:#22C55E"></div></div>
+              <div class="zone-time">28m</div>
+            </div>
+            <div class="hr-zone-row">
+              <div class="zone-dot" style="background:#F59E0B"></div>
+              <div class="zone-name">Zone 3 · Cardio</div>
+              <div class="zone-range">115–145</div>
+              <div class="zone-bar-wrap"><div class="zone-bar" style="width:20%;background:#F59E0B"></div></div>
+              <div class="zone-time">8m</div>
+            </div>
+            <div class="hr-zone-row">
+              <div class="zone-dot" style="background:#F97316"></div>
+              <div class="zone-name">Zone 4 · Peak</div>
+              <div class="zone-range">145–165</div>
+              <div class="zone-bar-wrap"><div class="zone-bar" style="width:8%;background:#F97316"></div></div>
+              <div class="zone-time">2m</div>
+            </div>
+            <div class="hr-zone-row">
+              <div class="zone-dot" style="background:#EF4444"></div>
+              <div class="zone-name">Zone 5 · Max</div>
+              <div class="zone-range">165+</div>
+              <div class="zone-bar-wrap"><div class="zone-bar" style="width:2%;background:#EF4444"></div></div>
+              <div class="zone-time">—</div>
+            </div>
+          </div>
+          <div style="height:16px"></div>
+        </div>
+
+        <div class="s-nav">
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+          <div class="s-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Workouts</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Care</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">Heart Rate</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 3 — SLEEP TRACKING
+  ══════════════════════════════════════════ -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="screen s-bg">
+        <div class="s-status-bar">
+          <span class="s-time">9:41</span>
+          <div class="s-icons">
+            <svg viewBox="0 0 24 24" fill="#F0F0F8" width="16" height="16"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          </div>
+        </div>
+
+        <div class="back-btn" style="color:#7C6FCD">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Sleep Tracking
+        </div>
+
+        <div class="s-scroll" style="height:calc(100% - 100px - 82px)">
+          <!-- Sleep Hero -->
+          <div class="sleep-hero" style="margin:4px 16px; border-radius:24px; position:relative;">
+            <div class="sleep-score-row">
+              <div>
+                <div class="sleep-score-big" style="background:linear-gradient(135deg,#7C6FCD,#4F9CF9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">78</div>
+                <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8888A8;margin-top:2px;">Sleep Score</div>
+                <div class="badge badge-purple" style="margin-top:8px;">🌙 Good Sleep</div>
+              </div>
+              <div class="sleep-score-right">
+                <div class="sleep-duration">7<span>h</span> 12<span>m</span></div>
+                <div class="sleep-quality">Above average</div>
+                <div style="font-size:0.75rem;color:#8888A8;margin-top:6px;">Goal: 8h</div>
+              </div>
+            </div>
+            <div class="sleep-time-range">
+              <span>🌙 10:48 PM</span> → <span>6:00 AM</span>
+            </div>
+
+            <!-- Sleep Hypnogram -->
+            <div style="margin-top:14px;">
+              <svg width="100%" height="52" viewBox="0 0 310 52">
+                <!-- Stage bands -->
+                <rect x="0" y="0" width="310" height="52" fill="none"/>
+                <!-- Stage labels -->
+                <text x="2" y="10" fill="#55556A" font-size="7">Awake</text>
+                <text x="2" y="22" fill="#55556A" font-size="7">REM</text>
+                <text x="2" y="34" fill="#55556A" font-size="7">Light</text>
+                <text x="2" y="46" fill="#55556A" font-size="7">Deep</text>
+                <!-- Hypnogram line -->
+                <polyline points="32,46 60,46 70,34 90,34 110,46 125,20 150,34 165,34 180,46 210,46 225,20 245,34 270,46 295,46 310,42"
+                  fill="none" stroke="url(#sleepGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  style="stroke-dasharray:600; animation: draw-line 1.5s ease-out both 0.4s"/>
+                <!-- Area fill -->
+                <path d="M32,46 60,46 70,34 90,34 110,46 125,20 150,34 165,34 180,46 210,46 225,20 245,34 270,46 295,46 310,42 L310,52 L32,52 Z"
+                  fill="url(#sleepArea)" opacity="0.5"/>
+                <defs>
+                  <linearGradient id="sleepGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#7C6FCD"/>
+                    <stop offset="100%" stop-color="#4F9CF9"/>
+                  </linearGradient>
+                  <linearGradient id="sleepArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#7C6FCD" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#7C6FCD" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div style="display:flex;justify-content:space-between;padding:0 32px;margin-top:2px;">
+                <span style="font-size:0.5625rem;color:#55556A">11PM</span>
+                <span style="font-size:0.5625rem;color:#55556A">2AM</span>
+                <span style="font-size:0.5625rem;color:#55556A">5AM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sleep Stages Breakdown -->
+          <div class="section-header"><span class="section-title">Sleep Stages</span></div>
+          <div class="sleep-stages-card">
+            <div class="sleep-stage-row">
+              <div class="stage-color" style="background:#7C6FCD"></div>
+              <div class="stage-name">Deep Sleep</div>
+              <div class="stage-bar-wrap"><div class="stage-bar" style="width:22%;background:linear-gradient(90deg,#7C6FCD,#4F9CF9)"></div></div>
+              <div class="stage-dur">1h 36m</div>
+              <div class="stage-pct" style="color:#7C6FCD">22%</div>
+            </div>
+            <div class="sleep-stage-row">
+              <div class="stage-color" style="background:#4F9CF9"></div>
+              <div class="stage-name">REM</div>
+              <div class="stage-bar-wrap"><div class="stage-bar" style="width:28%;background:#4F9CF9"></div></div>
+              <div class="stage-dur">2h 01m</div>
+              <div class="stage-pct" style="color:#4F9CF9">28%</div>
+            </div>
+            <div class="sleep-stage-row">
+              <div class="stage-color" style="background:#06B6D4"></div>
+              <div class="stage-name">Light</div>
+              <div class="stage-bar-wrap"><div class="stage-bar" style="width:45%;background:#06B6D4"></div></div>
+              <div class="stage-dur">3h 15m</div>
+              <div class="stage-pct" style="color:#06B6D4">45%</div>
+            </div>
+            <div class="sleep-stage-row">
+              <div class="stage-color" style="background:#3A3A4A"></div>
+              <div class="stage-name">Awake</div>
+              <div class="stage-bar-wrap"><div class="stage-bar" style="width:5%;background:#3A3A4A"></div></div>
+              <div class="stage-dur">20m</div>
+              <div class="stage-pct" style="color:#55556A">5%</div>
+            </div>
+          </div>
+
+          <!-- Sleep Metrics Row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 16px;">
+            <div style="background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:12px;text-align:center;">
+              <div style="font-size:1rem;margin-bottom:4px;">💤</div>
+              <div style="font-size:1.125rem;font-weight:700;color:#7C6FCD">14m</div>
+              <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Latency</div>
+            </div>
+            <div style="background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:12px;text-align:center;">
+              <div style="font-size:1rem;margin-bottom:4px;">🔄</div>
+              <div style="font-size:1.125rem;font-weight:700;color:#4F9CF9">4</div>
+              <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Cycles</div>
+            </div>
+            <div style="background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:12px;text-align:center;">
+              <div style="font-size:1rem;margin-bottom:4px;">📈</div>
+              <div style="font-size:1.125rem;font-weight:700;color:#22C55E">92%</div>
+              <div style="font-size:0.5625rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Efficiency</div>
+            </div>
+          </div>
+
+          <!-- AI Sleep Insights -->
+          <div class="section-header"><span class="section-title">AI Insights</span></div>
+          <div class="sleep-tips-card" style="margin:0 16px 4px;">
+            <div class="sleep-insight">
+              <div class="insight-icon">🧠</div>
+              <div class="insight-text"><strong>REM sleep was optimal</strong> at 28% (ideal: 20–25%). Your memory consolidation and creativity will peak today.</div>
+            </div>
+            <div class="sleep-insight">
+              <div class="insight-icon">⚠️</div>
+              <div class="insight-text">You woke briefly at <strong>3:24 AM</strong> — likely due to elevated resting heart rate (82bpm). Consider reducing screen time before bed.</div>
+            </div>
+            <div class="sleep-insight">
+              <div class="insight-icon">✅</div>
+              <div class="insight-text">Consistent sleep schedule detected. <strong>Bedtime variance: ±14 min</strong> over the past 7 days. Excellent.</div>
+            </div>
+          </div>
+
+          <!-- 7-day sleep chart -->
+          <div class="sleep-week-card" style="margin:4px 16px 8px;">
+            <div class="rings-header">
+              <h3>7-Day History</h3>
+              <span style="font-size:0.75rem;color:#7C6FCD">Avg: 7.4h</span>
+            </div>
+            <svg width="100%" height="64" viewBox="0 0 310 64">
+              <!-- Bars -->
+              <rect x="10" y="24" width="28" height="40" rx="6" fill="rgba(124,111,205,0.5)"/>
+              <rect x="55" y="16" width="28" height="48" rx="6" fill="rgba(124,111,205,0.6)"/>
+              <rect x="100" y="8" width="28" height="56" rx="6" fill="rgba(124,111,205,0.8)"/>
+              <rect x="145" y="20" width="28" height="44" rx="6" fill="rgba(124,111,205,0.7)"/>
+              <rect x="190" y="12" width="28" height="52" rx="6" fill="rgba(124,111,205,0.9)"/>
+              <rect x="235" y="18" width="28" height="46" rx="6" fill="rgba(124,111,205,0.6)"/>
+              <rect x="280" y="10" width="28" height="54" rx="6" fill="url(#sleepBarGrad)"/>
+              <!-- Goal line -->
+              <line x1="0" y1="0" x2="310" y2="0" stroke="rgba(124,111,205,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+              <defs>
+                <linearGradient id="sleepBarGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#7C6FCD"/>
+                  <stop offset="100%" stop-color="#4F9CF9"/>
+                </linearGradient>
+              </defs>
+              <!-- Labels -->
+              <text x="24" y="62" fill="#55556A" font-size="8" text-anchor="middle">M</text>
+              <text x="69" y="62" fill="#55556A" font-size="8" text-anchor="middle">T</text>
+              <text x="114" y="62" fill="#55556A" font-size="8" text-anchor="middle">W</text>
+              <text x="159" y="62" fill="#55556A" font-size="8" text-anchor="middle">T</text>
+              <text x="204" y="62" fill="#55556A" font-size="8" text-anchor="middle">F</text>
+              <text x="249" y="62" fill="#55556A" font-size="8" text-anchor="middle">S</text>
+              <text x="294" y="62" fill="#4F9CF9" font-size="8" text-anchor="middle" font-weight="700">S</text>
+            </svg>
+          </div>
+          <div style="height:16px;"></div>
+        </div>
+
+        <div class="s-nav">
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+          <div class="s-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Workouts</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Care</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">Sleep Tracking</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 4 — AI HEALTH ASSISTANT
+  ══════════════════════════════════════════ -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="screen ai-screen">
+        <!-- Status Bar -->
+        <div class="s-status-bar">
+          <span class="s-time">9:41</span>
+          <div class="s-icons">
+            <svg viewBox="0 0 24 24" fill="#F0F0F8" width="16" height="16"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0z"/></svg>
+          </div>
+        </div>
+
+        <!-- AI Header -->
+        <div class="ai-header">
+          <div class="ai-avatar">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>
+            </svg>
+          </div>
+          <div class="ai-header-info">
+            <h3>Pulse AI</h3>
+            <p>● Active · Analysing your health data</p>
+          </div>
+          <div style="margin-left:auto;width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:999px;display:flex;align-items:center;justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8888A8" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="ai-messages">
+          <!-- AI message -->
+          <div class="msg-row">
+            <div class="msg-avatar" style="background:linear-gradient(135deg,#4F9CF9,#7C6FCD);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="white" opacity=".8"/></svg>
+            </div>
+            <div>
+              <div class="msg-bubble ai">
+                Good morning, Arjun! 🌟 I've reviewed your overnight data. Your sleep score was <strong>78/100</strong> with excellent REM cycles. Your HRV of <strong>52ms</strong> is 8% above your 30-day baseline — you're well-recovered.
+              </div>
+              <div class="msg-time ai">9:32 AM</div>
+            </div>
+          </div>
+
+          <!-- AI recommendation card inside chat -->
+          <div class="msg-row">
+            <div class="msg-avatar" style="background:linear-gradient(135deg,#4F9CF9,#7C6FCD);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="white" opacity=".8"/></svg>
+            </div>
+            <div style="max-width:80%">
+              <div style="background:#1A1A26;border:1px solid rgba(79,156,249,0.2);border-radius:18px;border-bottom-left-radius:4px;padding:12px 14px;">
+                <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#4F9CF9;margin-bottom:8px;">Today's Recommendation</div>
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#F97316,#EF4444);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🏃</div>
+                  <div>
+                    <div style="font-size:0.8125rem;font-weight:600;">30-min Zone 2 Run</div>
+                    <div style="font-size:0.6875rem;color:#8888A8;margin-top:1px;">Estimated 280 kcal · HR target: 115–135 bpm</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <div style="flex:1;height:34px;background:linear-gradient(135deg,#4F9CF9,#7C6FCD);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:white;">Start Workout</div>
+                  <div style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.875rem;">✕</div>
+                </div>
+              </div>
+              <div class="msg-time ai">9:32 AM</div>
+            </div>
+          </div>
+
+          <!-- User message -->
+          <div class="msg-row user">
+            <div class="avatar">AJ</div>
+            <div>
+              <div class="msg-bubble user">
+                Why did my sleep score drop from 86 to 78?
+              </div>
+              <div class="msg-time">9:35 AM</div>
+            </div>
+          </div>
+
+          <!-- AI detailed response -->
+          <div class="msg-row">
+            <div class="msg-avatar" style="background:linear-gradient(135deg,#4F9CF9,#7C6FCD);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="white" opacity=".8"/></svg>
+            </div>
+            <div>
+              <div class="msg-bubble ai">
+                Two main factors:<br><br>
+                <strong>1.</strong> You went to bed 38 minutes later than your average (10:48 PM vs 10:10 PM), cutting total sleep by ~25 minutes.<br><br>
+                <strong>2.</strong> Brief awakening at 3:24 AM (heart rate spiked to 82bpm) disrupted one full sleep cycle.<br><br>
+                Tip: Try to maintain your 10:15 PM bedtime tonight. 🌙
+              </div>
+              <div class="msg-time ai">9:36 AM</div>
+            </div>
+          </div>
+
+          <!-- Typing indicator -->
+          <div class="msg-row">
+            <div class="msg-avatar" style="background:linear-gradient(135deg,#4F9CF9,#7C6FCD);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="white" opacity=".8"/></svg>
+            </div>
+            <div class="msg-bubble ai" style="padding:12px 16px;">
+              <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion chips -->
+        <div class="ai-suggestion-chips">
+          <div class="chip">My stress levels</div>
+          <div class="chip">Analyse lab report</div>
+          <div class="chip">Weekly summary</div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="ai-input-bar" style="bottom:0;position:relative;height:70px;border-top:1px solid rgba(255,255,255,0.07);">
+          <div class="ai-input">Ask anything about your health...</div>
+          <div class="ai-send-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">AI Assistant</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 5 — MEDICATION
+  ══════════════════════════════════════════ -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="screen s-bg">
+        <div class="s-status-bar">
+          <span class="s-time">9:41</span>
+          <div class="s-icons">
+            <svg viewBox="0 0 24 24" fill="#F0F0F8" width="16" height="16"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9z"/></svg>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 22px 0;">
+          <div>
+            <div style="font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;">Medications</div>
+            <div style="font-size:0.8125rem;color:#8888A8;margin-top:2px;">Wednesday, 15 January</div>
+          </div>
+          <div style="width:34px;height:34px;background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">+</div>
+        </div>
+
+        <div class="s-scroll" style="height:calc(100% - 90px - 82px)">
+          <!-- Adherence Score -->
+          <div style="margin:12px 16px 4px;background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.08));border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:16px 18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#10B981;">Adherence Rate</div>
+                <div style="font-size:2.25rem;font-weight:800;letter-spacing:-0.04em;color:#10B981;margin-top:2px;">96<span style="font-size:1rem;font-weight:400;color:#8888A8">%</span></div>
+                <div style="font-size:0.75rem;color:#8888A8;margin-top:2px;">23 of 24 doses this month</div>
+              </div>
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(16,185,129,0.15)" stroke-width="6"/>
+                <circle cx="30" cy="30" r="24" fill="none" stroke="#10B981" stroke-width="6"
+                  stroke-linecap="round" stroke-dasharray="150" stroke-dashoffset="6"
+                  transform="rotate(-90 30 30)"/>
+                <text x="30" y="35" fill="#10B981" font-size="11" font-weight="800" text-anchor="middle">96%</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Next Dose Card -->
+          <div class="med-hero" style="margin:8px 16px;">
+            <div class="med-next">⏰ Next Dose In</div>
+            <div class="med-pill-name">Metformin 500mg</div>
+            <div class="med-pill-dose">1 tablet · With food</div>
+            <div class="med-countdown">2<span>h</span> 18<span>m</span></div>
+            <div style="display:flex;gap:6px;margin-top:12px;">
+              <div style="height:4px;flex:1;background:linear-gradient(90deg,#4F9CF9,#7C6FCD);border-radius:999px;"></div>
+              <div style="height:4px;flex:0.3;background:rgba(255,255,255,0.1);border-radius:999px;"></div>
+            </div>
+            <div class="med-actions">
+              <div class="med-btn-taken">✓ Mark as Taken</div>
+              <div class="med-btn-skip">⏭</div>
+            </div>
+          </div>
+
+          <!-- Today's Schedule -->
+          <div class="section-header" style="padding:10px 22px 8px;">
+            <span class="section-title">Today's Schedule</span>
+            <span style="font-size:0.75rem;color:#10B981;">3 / 4 taken</span>
+          </div>
+
+          <div class="med-list" style="padding:0 16px;">
+            <div class="med-item">
+              <div class="med-item-icon" style="background:rgba(16,185,129,0.12);">💊</div>
+              <div class="med-item-info">
+                <div class="med-item-name">Metformin 500mg</div>
+                <div class="med-item-dose">1 tablet · With breakfast</div>
+                <div class="med-item-time">8:00 AM · Taken at 8:02 AM</div>
+              </div>
+              <div class="med-status-check" style="color:#22C55E;">✓</div>
+            </div>
+            <div class="med-item">
+              <div class="med-item-icon" style="background:rgba(79,156,249,0.12);">💊</div>
+              <div class="med-item-info">
+                <div class="med-item-name">Lisinopril 10mg</div>
+                <div class="med-item-dose">1 tablet · Morning</div>
+                <div class="med-item-time">9:00 AM · Taken at 9:04 AM</div>
+              </div>
+              <div class="med-status-check" style="color:#22C55E;">✓</div>
+            </div>
+            <div class="med-item" style="border:1px solid rgba(245,158,11,0.25);">
+              <div class="med-item-icon" style="background:rgba(245,158,11,0.12);">💊</div>
+              <div class="med-item-info">
+                <div class="med-item-name">Vitamin D3 2000IU</div>
+                <div class="med-item-dose">1 softgel · With lunch</div>
+                <div class="med-item-time" style="color:#F59E0B;">⏰ 12:00 PM · Due in 2h 18m</div>
+              </div>
+              <div class="med-status-check" style="color:#F59E0B;">○</div>
+            </div>
+            <div class="med-item" style="opacity:0.5;">
+              <div class="med-item-icon" style="background:rgba(124,111,205,0.12);">💊</div>
+              <div class="med-item-info">
+                <div class="med-item-name">Metformin 500mg</div>
+                <div class="med-item-dose">1 tablet · With dinner</div>
+                <div class="med-item-time">7:00 PM · Upcoming</div>
+              </div>
+              <div class="med-status-check" style="color:#55556A;">—</div>
+            </div>
+          </div>
+
+          <!-- Refill Alert -->
+          <div style="margin:8px 16px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.25);border-radius:18px;padding:14px 16px;display:flex;gap:10px;align-items:center;">
+            <div style="font-size:1.25rem;">⚠️</div>
+            <div style="flex:1;">
+              <div style="font-size:0.875rem;font-weight:600;color:#F97316;">Metformin refill needed</div>
+              <div style="font-size:0.75rem;color:#8888A8;margin-top:2px;">12 tablets remaining · ~6 days supply</div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:600;color:#F97316;white-space:nowrap;">Refill →</div>
+          </div>
+          <div style="height:16px;"></div>
+        </div>
+
+        <div class="s-nav">
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Workouts</span></div>
+          <div class="s-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Care</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">Medications</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 6 — PROFILE & GOALS
+  ══════════════════════════════════════════ -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="screen s-bg">
+        <div class="s-status-bar">
+          <span class="s-time">9:41</span>
+          <div class="s-icons">
+            <svg viewBox="0 0 24 24" fill="#F0F0F8" width="16" height="16"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
+
+        <div class="s-scroll" style="height:calc(100% - 54px - 82px)">
+          <!-- Profile Hero -->
+          <div class="profile-hero">
+            <div class="profile-row">
+              <div class="profile-avatar">AJ</div>
+              <div class="profile-info">
+                <h2>Arjun Mehta</h2>
+                <p>arjun.mehta@email.com</p>
+                <div class="profile-premium">⭐ Pulse+ Premium</div>
+              </div>
+              <div style="margin-left:auto;">
+                <div style="width:34px;height:34px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;">✏️</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <div class="profile-stat-val" style="color:#4F9CF9">84</div>
+              <div class="profile-stat-label">Health Score</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val" style="color:#F59E0B">12</div>
+              <div class="profile-stat-label">Streak (days)</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val" style="color:#10B981">8</div>
+              <div class="profile-stat-label">Goals Met</div>
+            </div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="section-header" style="padding:12px 22px 8px;">
+            <span class="section-title">Recent Achievements</span>
+            <span class="section-link">View all</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:0 16px;overflow-x:auto;scrollbar-width:none;">
+            <div style="flex-shrink:0;background:#1A1A26;border:1px solid rgba(245,158,11,0.2);border-radius:18px;padding:14px;text-align:center;width:80px;">
+              <div style="font-size:1.75rem;margin-bottom:4px;">🏅</div>
+              <div style="font-size:0.5625rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#F59E0B;">7-Day Streak</div>
+            </div>
+            <div style="flex-shrink:0;background:#1A1A26;border:1px solid rgba(16,185,129,0.2);border-radius:18px;padding:14px;text-align:center;width:80px;">
+              <div style="font-size:1.75rem;margin-bottom:4px;">💪</div>
+              <div style="font-size:0.5625rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#10B981;">Step Master</div>
+            </div>
+            <div style="flex-shrink:0;background:#1A1A26;border:1px solid rgba(124,111,205,0.2);border-radius:18px;padding:14px;text-align:center;width:80px;">
+              <div style="font-size:1.75rem;margin-bottom:4px;">😴</div>
+              <div style="font-size:0.5625rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#7C6FCD;">Sleep Pro</div>
+            </div>
+            <div style="flex-shrink:0;background:#1A1A26;border:1px solid rgba(79,156,249,0.2);border-radius:18px;padding:14px;text-align:center;width:80px;">
+              <div style="font-size:1.75rem;margin-bottom:4px;">💧</div>
+              <div style="font-size:0.5625rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#06B6D4;">Hydrated</div>
+            </div>
+          </div>
+
+          <!-- Health Goals -->
+          <div class="goals-section" style="padding:4px 16px;margin-top:10px;">
+            <div class="goals-header" style="margin-bottom:10px;">
+              <h3>Active Goals</h3>
+              <span style="font-size:0.75rem;color:#4F9CF9;font-weight:500;">+ Add Goal</span>
+            </div>
+            <div class="goal-card">
+              <div class="goal-icon-wrap" style="background:rgba(249,115,22,0.12);">🏃</div>
+              <div class="goal-info">
+                <div class="goal-title">Run 5km without stopping</div>
+                <div class="goal-subtitle">Current best: 3.8km · Due in 14 days</div>
+                <div class="goal-bar-wrap">
+                  <div class="goal-bar" style="width:76%;background:linear-gradient(90deg,#F97316,#EF4444)"></div>
+                </div>
+              </div>
+              <div class="goal-pct" style="color:#F97316">76%</div>
+            </div>
+            <div class="goal-card">
+              <div class="goal-icon-wrap" style="background:rgba(16,185,129,0.12);">⚖️</div>
+              <div class="goal-info">
+                <div class="goal-title">Reach 75 kg body weight</div>
+                <div class="goal-subtitle">Current: 78.2 kg · Started: 82 kg</div>
+                <div class="goal-bar-wrap">
+                  <div class="goal-bar" style="width:54%;background:linear-gradient(90deg,#10B981,#06B6D4)"></div>
+                </div>
+              </div>
+              <div class="goal-pct" style="color:#10B981">54%</div>
+            </div>
+            <div class="goal-card">
+              <div class="goal-icon-wrap" style="background:rgba(124,111,205,0.12);">😴</div>
+              <div class="goal-info">
+                <div class="goal-title">Avg sleep score above 82</div>
+                <div class="goal-subtitle">Current avg: 79 · 7-day streak goal</div>
+                <div class="goal-bar-wrap">
+                  <div class="goal-bar" style="width:88%;background:linear-gradient(90deg,#7C6FCD,#4F9CF9)"></div>
+                </div>
+              </div>
+              <div class="goal-pct" style="color:#7C6FCD">88%</div>
+            </div>
+            <div class="goal-card">
+              <div class="goal-icon-wrap" style="background:rgba(6,182,212,0.12);">💧</div>
+              <div class="goal-info">
+                <div class="goal-title">Drink 2.5L water daily</div>
+                <div class="goal-subtitle">Today: 1.8L · On track</div>
+                <div class="goal-bar-wrap">
+                  <div class="goal-bar" style="width:72%;background:linear-gradient(90deg,#06B6D4,#22D3EE)"></div>
+                </div>
+              </div>
+              <div class="goal-pct" style="color:#06B6D4">72%</div>
+            </div>
+          </div>
+
+          <!-- Settings Quick Links -->
+          <div style="margin:8px 16px 16px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:32px;height:32px;background:rgba(79,156,249,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;">🔔</div>
+                <span style="font-size:0.875rem;font-weight:500;">Notifications</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#55556A" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:32px;height:32px;background:rgba(16,185,129,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;">👨‍👩‍👧</div>
+                <span style="font-size:0.875rem;font-weight:500;">Family Sharing</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#55556A" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:32px;height:32px;background:rgba(239,68,68,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;">🆘</div>
+                <span style="font-size:0.875rem;font-weight:500;">Emergency SOS</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#55556A" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:32px;height:32px;background:rgba(245,158,11,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;">⭐</div>
+                <span style="font-size:0.875rem;font-weight:500;">Pulse+ Premium</span>
+              </div>
+              <span style="font-size:0.6875rem;font-weight:600;color:#F59E0B;background:rgba(245,158,11,0.12);padding:3px 8px;border-radius:999px;">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="s-nav">
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Workouts</span></div>
+          <div class="s-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Care</span></div>
+          <div class="s-nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">Profile & Goals</span>
+  </div>
+
+</div><!-- end phone-showcase -->
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<div style="text-align:center; color:#3A3A4A; font-size:0.75rem; line-height:1.8; animation: fadeSlideUp 0.6s ease-out both 0.5s;">
+  <p style="color:#4F9CF9; font-weight:600; font-size:0.875rem; margin-bottom:4px;">Pulse+ Design System v1.0</p>
+  <p>6 screens · Dark Mode · iPhone 14 Pro · 375×812px</p>
+  <p>Screens: Home Dashboard · Heart Rate · Sleep · AI Assistant · Medications · Profile</p>
+  <p style="margin-top:8px; color:#55556A;">See accompanying files: tokens.css · tailwind.config.js · components.jsx · design-system.md</p>
+</div>
+
+</body>
+</html>

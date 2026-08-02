@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse+ · Workouts & Wellness</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: -apple-system, 'Helvetica Neue', sans-serif; background: #050508; display: flex; flex-direction: column; align-items: center; padding: 40px 20px 80px; gap: 56px; color: #F0F0F8; }
+  .page-header { text-align: center; }
+  .page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #F97316, #EF4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .page-header p { color: #55556A; font-size: 0.8125rem; margin-top: 4px; }
+  .row-label { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #F97316; text-align: center; margin-bottom: 16px; }
+  .phone-row { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .screen-label { font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #3A3A4A; }
+  .phone { width: 340px; height: 736px; background: #111118; border-radius: 52px; border: 1.5px solid rgba(255,255,255,0.1); box-shadow: 0 0 0 5px #0A0A12, 0 0 0 6.5px rgba(255,255,255,0.07), 0 32px 64px rgba(0,0,0,0.85); position: relative; overflow: hidden; flex-shrink: 0; }
+  .phone::before { content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: 30px; background: #08080F; border-radius: 16px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow: hidden; border-radius: 52px; position: relative; background: #08080F; }
+  @keyframes draw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(1.06)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .s-bar { height: 50px; display:flex; align-items:flex-end; justify-content:space-between; padding: 0 20px 8px; z-index:10; position:relative; }
+  .s-time { font-size: 0.8125rem; font-weight: 600; }
+  .nav-bar { position:absolute; bottom:0; left:0; right:0; height:78px; background:rgba(10,10,18,0.96); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-around; padding:0 8px 14px; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 10px; }
+  .nav-item svg { width:20px; height:20px; }
+  .nav-item span { font-size:0.5625rem; font-weight:500; }
+  .nav-item.a { color:#4F9CF9; } .nav-item:not(.a) { color:#3A3A4A; }
+  .scroll { height:calc(100% - 50px - 78px); overflow-y:auto; scrollbar-width:none; }
+  .scroll::-webkit-scrollbar { display:none; }
+  .back-row { display:flex; align-items:center; gap:6px; padding:6px 20px; font-size:0.8125rem; font-weight:500; }
+  .back-row svg { width:15px; height:15px; }
+  .card { background:#1A1A26; border:1px solid rgba(255,255,255,0.07); border-radius:22px; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font-size:0.5625rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
+  .sec-head { display:flex; justify-content:space-between; align-items:center; padding:12px 20px 8px; }
+  .sec-title { font-size:0.9375rem; font-weight:700; }
+  .sec-link { font-size:0.75rem; color:#4F9CF9; font-weight:500; }
+  .nav-base { }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Pulse+ · Workouts & Wellness</h1>
+  <p>Workout Dashboard · Running Tracker · Yoga · Meditation · Stress Monitor · Mood Journal</p>
+</div>
+
+<div class="row-label">Fitness & Activity</div>
+<div class="phone-row">
+
+  <!-- WORKOUT DASHBOARD -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="scroll">
+        <div style="padding:4px 20px 12px;">
+          <div style="font-size:1.375rem;font-weight:800;letter-spacing:-0.03em;">Workouts</div>
+          <div style="font-size:0.8125rem;color:#8888A8;margin-top:2px;">Wednesday, 15 January</div>
+        </div>
+
+        <!-- Start Workout CTA -->
+        <div style="margin:0 16px 12px;background:linear-gradient(135deg,#F97316,#EF4444);border-radius:22px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(255,255,255,0.15) 0%,transparent 50%);"></div>
+          <div style="position:relative;">
+            <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:8px;">🔥 READY TO MOVE?</div>
+            <div style="font-size:1.375rem;font-weight:800;color:white;letter-spacing:-0.02em;margin-bottom:4px;">Start a Workout</div>
+            <div style="font-size:0.8125rem;color:rgba(255,255,255,0.75);">AI will suggest the best workout for your recovery score</div>
+            <div style="margin-top:14px;display:flex;gap:8px;">
+              <div style="flex:1;height:42px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.875rem;font-weight:700;color:white;">▶ Quick Start</div>
+              <div style="width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🎯</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Summary -->
+        <div class="sec-head"><span class="sec-title">This Week</span><span class="sec-link">Full report</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 16px 12px;">
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:1.375rem;font-weight:800;color:#F97316;">5</div>
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-top:2px;">Workouts</div>
+          </div>
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:1.375rem;font-weight:800;color:#4F9CF9;">3h 40m</div>
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-top:2px;">Active Time</div>
+          </div>
+          <div class="card" style="padding:12px;text-align:center;">
+            <div style="font-size:1.375rem;font-weight:800;color:#EF4444;">2,840</div>
+            <div style="font-size:0.5rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55556A;margin-top:2px;">Cal Burned</div>
+          </div>
+        </div>
+
+        <!-- Day picker -->
+        <div style="display:flex;gap:6px;padding:0 16px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;">
+          {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i) => `
+          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:14px;background:${i===2?'linear-gradient(135deg,#F97316,#EF4444)':'#1A1A26'};border:1px solid ${i===2?'transparent':'rgba(255,255,255,0.07)'};">
+            <div style="font-size:0.5625rem;font-weight:600;text-transform:uppercase;color:${i===2?'rgba(255,255,255,0.8)':'#55556A'};">${d}</div>
+            <div style="font-size:0.875rem;font-weight:700;color:${i===2?'white':'#F0F0F8'};">${15-i}</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:${i<3?'rgba(249,115,22,0.8)':'rgba(255,255,255,0.1)'};"></div>
+          </div>`).join('')}
+        </div>
+        <!-- Hardcoded day picker since no JS -->
+        <div style="display:flex;gap:6px;padding:0 16px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;">
+          <div style="flex-shrink:0;text-align:center;padding:8px 10px;border-radius:14px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;font-weight:600;">Mon</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;">13</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:rgba(249,115,22,0.7);margin:0 auto;"></div>
+          </div>
+          <div style="flex-shrink:0;text-align:center;padding:8px 10px;border-radius:14px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;font-weight:600;">Tue</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;">14</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:rgba(249,115,22,0.7);margin:0 auto;"></div>
+          </div>
+          <div style="flex-shrink:0;text-align:center;padding:8px 12px;border-radius:14px;background:linear-gradient(135deg,#F97316,#EF4444);">
+            <div style="font-size:0.5rem;color:rgba(255,255,255,0.7);text-transform:uppercase;font-weight:600;">Wed</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;color:white;">15</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:white;margin:0 auto;"></div>
+          </div>
+          <div style="flex-shrink:0;text-align:center;padding:8px 10px;border-radius:14px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;font-weight:600;">Thu</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;">16</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,0.1);margin:0 auto;"></div>
+          </div>
+          <div style="flex-shrink:0;text-align:center;padding:8px 10px;border-radius:14px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;font-weight:600;">Fri</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;">17</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,0.1);margin:0 auto;"></div>
+          </div>
+          <div style="flex-shrink:0;text-align:center;padding:8px 10px;border-radius:14px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;font-weight:600;">Sat</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;">18</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,0.1);margin:0 auto;"></div>
+          </div>
+          <div style="flex-shrink:0;text-align:center;padding:8px 10px;border-radius:14px;background:#1A1A26;border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;font-weight:600;">Sun</div>
+            <div style="font-size:0.875rem;font-weight:700;margin:2px 0;">19</div>
+            <div style="width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,0.1);margin:0 auto;"></div>
+          </div>
+        </div>
+
+        <!-- Workout types -->
+        <div class="sec-head"><span class="sec-title">Choose Activity</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px;">
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;border:1px solid rgba(249,115,22,0.2);">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(249,115,22,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🏃</div>
+            <div><div style="font-size:0.875rem;font-weight:600;">Running</div><div style="font-size:0.6875rem;color:#8888A8;">GPS tracked</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(79,156,249,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🚴</div>
+            <div><div style="font-size:0.875rem;font-weight:600;">Cycling</div><div style="font-size:0.6875rem;color:#8888A8;">GPS tracked</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(124,111,205,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🏋️</div>
+            <div><div style="font-size:0.875rem;font-weight:600;">Strength</div><div style="font-size:0.6875rem;color:#8888A8;">Sets & reps</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🧘</div>
+            <div><div style="font-size:0.875rem;font-weight:600;">Yoga</div><div style="font-size:0.6875rem;color:#8888A8;">Guided flow</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(6,182,212,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🏊</div>
+            <div><div style="font-size:0.875rem;font-weight:600;">Swimming</div><div style="font-size:0.6875rem;color:#8888A8;">Pool / open</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(251,113,133,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">⚽</div>
+            <div><div style="font-size:0.875rem;font-weight:600;">Sports</div><div style="font-size:0.6875rem;color:#8888A8;">Any sport</div></div>
+          </div>
+        </div>
+
+        <!-- Recent workouts -->
+        <div class="sec-head"><span class="sec-title">Recent</span><span class="sec-link">See all</span></div>
+        <div style="margin:0 16px;display:flex;flex-direction:column;gap:8px;">
+          <div class="card" style="padding:14px 16px;display:flex;gap:10px;align-items:center;">
+            <div style="width:44px;height:44px;border-radius:13px;background:rgba(249,115,22,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🏃</div>
+            <div style="flex:1;">
+              <div style="font-size:0.875rem;font-weight:600;">Morning Run</div>
+              <div style="font-size:0.75rem;color:#8888A8;">Tuesday · 6:30 AM · 5.2 km</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.875rem;font-weight:700;color:#F97316;">320 kcal</div>
+              <div style="font-size:0.6875rem;color:#55556A;">28 min</div>
+            </div>
+          </div>
+          <div class="card" style="padding:14px 16px;display:flex;gap:10px;align-items:center;">
+            <div style="width:44px;height:44px;border-radius:13px;background:rgba(124,111,205,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🏋️</div>
+            <div style="flex:1;">
+              <div style="font-size:0.875rem;font-weight:600;">Push-Pull Strength</div>
+              <div style="font-size:0.75rem;color:#8888A8;">Monday · 7:00 PM · 8 exercises</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.875rem;font-weight:700;color:#7C6FCD;">480 kcal</div>
+              <div style="font-size:0.6875rem;color:#55556A;">52 min</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Workout Dashboard</span>
+  </div>
+
+  <!-- RUNNING TRACKER (LIVE) -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <!-- Fullscreen map-like background -->
+      <div style="position:absolute;inset:0;background:linear-gradient(175deg,#0A1220 0%,#0E1828 40%,#121E30 100%);">
+        <!-- Fake map grid -->
+        <svg width="100%" height="100%" opacity="0.15">
+          <line x1="0" y1="150" x2="340" y2="150" stroke="#4F9CF9" stroke-width="0.5"/>
+          <line x1="0" y1="220" x2="340" y2="220" stroke="#4F9CF9" stroke-width="0.5"/>
+          <line x1="0" y1="290" x2="340" y2="290" stroke="#4F9CF9" stroke-width="0.5"/>
+          <line x1="80" y1="0" x2="80" y2="736" stroke="#4F9CF9" stroke-width="0.5"/>
+          <line x1="180" y1="0" x2="180" y2="736" stroke="#4F9CF9" stroke-width="0.5"/>
+          <line x1="260" y1="0" x2="260" y2="736" stroke="#4F9CF9" stroke-width="0.5"/>
+          <!-- Streets -->
+          <rect x="0" y="195" width="340" height="6" rx="3" fill="#1A2840"/>
+          <rect x="160" y="0" width="6" height="736" rx="3" fill="#1A2840"/>
+          <rect x="0" y="320" width="200" height="4" rx="2" fill="#1A2840"/>
+          <rect x="60" y="100" width="4" height="200" rx="2" fill="#1A2840"/>
+          <!-- Route path -->
+          <path d="M60 600 C 60 500, 100 450, 160 450 C 220 450, 280 400, 280 340 C 280 280, 240 250, 200 250 C 160 250, 130 280, 170 320"
+            fill="none" stroke="#4F9CF9" stroke-width="4" stroke-linecap="round"
+            style="stroke-dasharray:600;animation:draw 2s ease-out both 0.5s;opacity:0.8"/>
+          <!-- Current position dot -->
+          <circle cx="170" cy="320" r="8" fill="#4F9CF9"/>
+          <circle cx="170" cy="320" r="16" fill="#4F9CF9" opacity="0.3" style="animation:pulse 1.5s ease-in-out infinite"/>
+          <circle cx="170" cy="320" r="24" fill="#4F9CF9" opacity="0.1" style="animation:pulse 1.5s ease-in-out infinite 0.3s"/>
+        </svg>
+      </div>
+
+      <!-- Top live badge -->
+      <div style="position:absolute;top:54px;left:0;right:0;display:flex;justify-content:center;z-index:10;">
+        <div style="background:rgba(239,68,68,0.9);border-radius:999px;padding:5px 16px;display:flex;align-items:center;gap:6px;">
+          <div style="width:6px;height:6px;border-radius:999px;background:white;animation:pulse 1s ease-in-out infinite;"></div>
+          <span style="font-size:0.6875rem;font-weight:700;color:white;letter-spacing:0.06em;">LIVE · 00:24:38</span>
+        </div>
+      </div>
+
+      <!-- Bottom stats panel -->
+      <div style="position:absolute;bottom:0;left:0;right:0;z-index:10;">
+        <!-- Main stats -->
+        <div style="background:rgba(11,11,18,0.97);border-top:1px solid rgba(255,255,255,0.1);padding:16px 20px 8px;border-radius:28px 28px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,0.6);">
+          <!-- Big stats row -->
+          <div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;margin-bottom:16px;">
+            <div style="text-align:center;">
+              <div style="font-size:2rem;font-weight:900;letter-spacing:-0.05em;background:linear-gradient(135deg,#F97316,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">3.84</div>
+              <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-top:3px;">KM</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:2rem;font-weight:900;letter-spacing:-0.05em;color:#4F9CF9;line-height:1;">6:25</div>
+              <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-top:3px;">MIN/KM</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:2rem;font-weight:900;letter-spacing:-0.05em;color:#EF4444;line-height:1;">124</div>
+              <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#55556A;margin-top:3px;">BPM</div>
+            </div>
+          </div>
+
+          <!-- Secondary stats -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="background:#1A1A26;border-radius:12px;padding:10px 8px;text-align:center;">
+              <div style="font-size:0.875rem;font-weight:700;color:#F0F0F8;">284</div>
+              <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Cal</div>
+            </div>
+            <div style="background:#1A1A26;border-radius:12px;padding:10px 8px;text-align:center;">
+              <div style="font-size:0.875rem;font-weight:700;color:#F0F0F8;">48m</div>
+              <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Cadence</div>
+            </div>
+            <div style="background:#1A1A26;border-radius:12px;padding:10px 8px;text-align:center;">
+              <div style="font-size:0.875rem;font-weight:700;color:#22C55E;">Zone 2</div>
+              <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">HR Zone</div>
+            </div>
+            <div style="background:#1A1A26;border-radius:12px;padding:10px 8px;text-align:center;">
+              <div style="font-size:0.875rem;font-weight:700;color:#F0F0F8;">+12m</div>
+              <div style="font-size:0.5rem;color:#55556A;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Elev</div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div style="display:flex;gap:10px;align-items:center;padding-bottom:20px;">
+            <div style="width:50px;height:50px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;">📸</div>
+            <div style="flex:1;height:60px;border-radius:18px;background:linear-gradient(135deg,#F97316,#EF4444);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(249,115,22,0.4);">
+              <div style="width:14px;height:14px;background:white;border-radius:3px;"></div>
+              <span style="font-size:1rem;font-weight:700;color:white;">Pause</span>
+            </div>
+            <div style="width:50px;height:50px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;">🔔</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <span class="screen-label">Running (Live)</span>
+  </div>
+
+  <!-- MEDITATION -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div style="height:100%;background:linear-gradient(165deg,#08061A 0%,#0E0C28 40%,#121038 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+        <!-- Ambient orbs -->
+        <div style="position:absolute;width:300px;height:300px;top:-80px;left:-80px;border-radius:999px;background:#7C6FCD;filter:blur(100px);opacity:0.15;"></div>
+        <div style="position:absolute;width:200px;height:200px;bottom:100px;right:-50px;border-radius:999px;background:#4F9CF9;filter:blur(80px);opacity:0.12;"></div>
+
+        <div class="s-bar" style="background:transparent;">
+          <span class="s-time" style="color:rgba(255,255,255,0.6);">9:41</span>
+          <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">✕</span>
+        </div>
+
+        <!-- Session info -->
+        <div style="text-align:center;padding:8px 24px 0;position:relative;z-index:1;">
+          <div style="font-size:0.625rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">MEDITATION · BODY SCAN</div>
+          <div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;">Deep Relaxation</div>
+          <div style="font-size:0.8125rem;color:rgba(255,255,255,0.5);margin-top:4px;">10 minutes · Guided</div>
+        </div>
+
+        <!-- Breathing animation -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;">
+          <!-- Concentric pulsing rings -->
+          <div style="position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;">
+            <div style="position:absolute;width:200px;height:200px;border-radius:999px;background:rgba(124,111,205,0.06);border:1px solid rgba(124,111,205,0.15);animation:pulse 4s ease-in-out infinite;"></div>
+            <div style="position:absolute;width:160px;height:160px;border-radius:999px;background:rgba(124,111,205,0.08);border:1px solid rgba(124,111,205,0.2);animation:pulse 4s ease-in-out infinite 0.5s;"></div>
+            <div style="position:absolute;width:120px;height:120px;border-radius:999px;background:rgba(124,111,205,0.12);border:1px solid rgba(124,111,205,0.3);animation:pulse 4s ease-in-out infinite 1s;"></div>
+            <div style="position:absolute;width:80px;height:80px;border-radius:999px;background:rgba(124,111,205,0.2);border:1px solid rgba(124,111,205,0.5);animation:pulse 4s ease-in-out infinite 1.5s;"></div>
+            <!-- Center -->
+            <div style="width:48px;height:48px;border-radius:999px;background:linear-gradient(135deg,#7C6FCD,#4F9CF9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(124,111,205,0.6);font-size:1.25rem;">🧘</div>
+          </div>
+          <div style="margin-top:28px;text-align:center;">
+            <div style="font-size:1rem;font-weight:600;color:rgba(255,255,255,0.8);">Breathe out slowly...</div>
+            <div style="font-size:0.8125rem;color:rgba(255,255,255,0.4);margin-top:4px;">Focus on releasing tension</div>
+          </div>
+        </div>
+
+        <!-- Timer + Progress -->
+        <div style="padding:0 24px 20px;position:relative;z-index:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">3:20</span>
+            <span style="font-size:1.5rem;font-weight:800;color:white;letter-spacing:-0.03em;">06:40</span>
+            <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">10:00</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:999px;overflow:hidden;margin-bottom:20px;">
+            <div style="width:33%;height:100%;background:linear-gradient(90deg,#7C6FCD,#4F9CF9);border-radius:999px;"></div>
+          </div>
+
+          <!-- Controls -->
+          <div style="display:flex;gap:12px;align-items:center;justify-content:center;">
+            <div style="width:52px;height:52px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;">⏮</div>
+            <div style="width:68px;height:68px;border-radius:999px;background:linear-gradient(135deg,#7C6FCD,#4F9CF9);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(124,111,205,0.4);">
+              <div style="width:14px;height:14px;background:white;border-radius:3px;"></div>
+            </div>
+            <div style="width:52px;height:52px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.25rem;">⏭</div>
+          </div>
+
+          <!-- Biofeedback -->
+          <div style="margin-top:20px;padding:12px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;display:flex;justify-content:space-around;">
+            <div style="text-align:center;">
+              <div style="font-size:1rem;font-weight:700;color:#EF4444;">62</div>
+              <div style="font-size:0.5625rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">BPM</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.08);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:1rem;font-weight:700;color:#22C55E;">HRV 62ms</div>
+              <div style="font-size:0.5625rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">Relaxing ↑</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.08);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:1rem;font-weight:700;color:#7C6FCD;">Day 8</div>
+              <div style="font-size:0.5625rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">Streak</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <span class="screen-label">Meditation</span>
+  </div>
+
+  <!-- STRESS MONITOR -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div class="back-row" style="color:#FB7185;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Stress Monitor
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 34px - 78px)">
+        <!-- Stress gauge -->
+        <div style="display:flex;flex-direction:column;align-items:center;padding:16px 20px 20px;background:linear-gradient(135deg,#160A0A,#1E0E12);margin:4px 16px;border-radius:22px;border:1px solid rgba(251,113,133,0.12);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(251,113,133,0.1) 0%,transparent 50%);"></div>
+          <div style="position:relative;width:170px;height:170px;">
+            <svg width="170" height="170">
+              <!-- Semicircle gauge -->
+              <path d="M20,130 A75,75 0 0 1 150,130" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12" stroke-linecap="round"/>
+              <!-- Colored zones -->
+              <path d="M20,130 A75,75 0 0 1 65,48" fill="none" stroke="#22C55E" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+              <path d="M65,48 A75,75 0 0 1 107,40" fill="none" stroke="#F59E0B" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+              <path d="M107,40 A75,75 0 0 1 150,130" fill="none" stroke="#EF4444" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+              <!-- Needle at 32 (Low-Medium boundary) -->
+              <line x1="85" y1="130" x2="42" y2="72" stroke="white" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="85" cy="130" r="8" fill="white"/>
+              <circle cx="85" cy="130" r="4" fill="#FB7185"/>
+            </svg>
+            <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-size:2.5rem;font-weight:900;letter-spacing:-0.05em;color:#F0F0F8;line-height:1;">32</div>
+              <div style="font-size:0.625rem;color:#8888A8;text-transform:uppercase;letter-spacing:0.08em;">/100 Stress</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:4px;">
+            <div style="display:flex;gap:5px;align-items:center;font-size:0.6875rem;"><div style="width:8px;height:8px;border-radius:2px;background:#22C55E;"></div><span style="color:#8888A8;">Low 0–33</span></div>
+            <div style="display:flex;gap:5px;align-items:center;font-size:0.6875rem;"><div style="width:8px;height:8px;border-radius:2px;background:#F59E0B;"></div><span style="color:#8888A8;">Mid 34–66</span></div>
+            <div style="display:flex;gap:5px;align-items:center;font-size:0.6875rem;"><div style="width:8px;height:8px;border-radius:2px;background:#EF4444;"></div><span style="color:#8888A8;">High 67+</span></div>
+          </div>
+          <div style="margin-top:10px;" class="badge" style="background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3);">
+            <span style="background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3);padding:3px 12px;border-radius:999px;font-size:0.6875rem;font-weight:700;">✓ Low Stress · Well recovered</span>
+          </div>
+        </div>
+
+        <!-- Stress breakdown -->
+        <div class="sec-head"><span class="sec-title">Stress Factors</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1rem;flex-shrink:0;">😴</span>
+              <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:500;margin-bottom:4px;">Sleep Quality</div><div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:78%;height:100%;background:linear-gradient(90deg,#22C55E,#10B981);border-radius:999px;"></div></div></div>
+              <span style="font-size:0.75rem;font-weight:700;color:#22C55E;">Good</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1rem;flex-shrink:0;">🫀</span>
+              <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:500;margin-bottom:4px;">HRV Score</div><div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:65%;height:100%;background:linear-gradient(90deg,#4F9CF9,#7C6FCD);border-radius:999px;"></div></div></div>
+              <span style="font-size:0.75rem;font-weight:700;color:#4F9CF9;">Normal</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1rem;flex-shrink:0;">🏃</span>
+              <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:500;margin-bottom:4px;">Physical Load</div><div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:55%;height:100%;background:linear-gradient(90deg,#F59E0B,#F97316);border-radius:999px;"></div></div></div>
+              <span style="font-size:0.75rem;font-weight:700;color:#F59E0B;">Moderate</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1rem;flex-shrink:0;">💼</span>
+              <div style="flex:1;"><div style="font-size:0.8125rem;font-weight:500;margin-bottom:4px;">Work Pressure</div><div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;"><div style="width:40%;height:100%;background:linear-gradient(90deg,#22C55E,#10B981);border-radius:999px;"></div></div></div>
+              <span style="font-size:0.75rem;font-weight:700;color:#22C55E;">Low</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick tools -->
+        <div class="sec-head"><span class="sec-title">Stress Relief</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 12px;">
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:11px;background:rgba(124,111,205,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🧘</div>
+            <div><div style="font-size:0.8125rem;font-weight:600;">Box Breathing</div><div style="font-size:0.6875rem;color:#8888A8;">4 min</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:11px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🌿</div>
+            <div><div style="font-size:0.8125rem;font-weight:600;">Nature Walk</div><div style="font-size:0.6875rem;color:#8888A8;">15 min guided</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:11px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">📔</div>
+            <div><div style="font-size:0.8125rem;font-weight:600;">Journal</div><div style="font-size:0.6875rem;color:#8888A8;">Write it out</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:11px;background:rgba(79,156,249,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🎵</div>
+            <div><div style="font-size:0.8125rem;font-weight:600;">Focus Music</div><div style="font-size:0.6875rem;color:#8888A8;">Binaural beats</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Stress Monitor</span>
+  </div>
+
+  <!-- MOOD JOURNAL -->
+  <div class="phone-col">
+    <div class="phone"><div class="screen">
+      <div class="s-bar"><span class="s-time">9:41</span></div>
+      <div style="padding:4px 20px 8px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:1.375rem;font-weight:800;letter-spacing:-0.03em;">Mood Journal</div>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:999px;padding:4px 12px;font-size:0.6875rem;font-weight:700;color:#F59E0B;">Day 12 🔥</div>
+      </div>
+      <div class="scroll" style="height:calc(100% - 50px - 30px - 78px)">
+        <!-- Today's check-in -->
+        <div style="margin:4px 16px;background:linear-gradient(135deg,#141008,#1A1410);border-radius:22px;padding:18px;border:1px solid rgba(245,158,11,0.15);">
+          <div style="font-size:0.8125rem;font-weight:600;color:#F0F0F8;margin-bottom:12px;">How are you feeling right now?</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+            <div style="text-align:center;cursor:pointer;">
+              <div style="font-size:1.75rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,0.05);">😢</div>
+              <div style="font-size:0.5625rem;color:#55556A;margin-top:3px;">Awful</div>
+            </div>
+            <div style="text-align:center;cursor:pointer;">
+              <div style="font-size:1.75rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,0.05);">😕</div>
+              <div style="font-size:0.5625rem;color:#55556A;margin-top:3px;">Bad</div>
+            </div>
+            <div style="text-align:center;cursor:pointer;">
+              <div style="font-size:1.75rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,0.05);">😐</div>
+              <div style="font-size:0.5625rem;color:#55556A;margin-top:3px;">OK</div>
+            </div>
+            <div style="text-align:center;cursor:pointer;">
+              <div style="font-size:1.75rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(34,197,94,0.15);border:2px solid rgba(34,197,94,0.4);">😊</div>
+              <div style="font-size:0.5625rem;color:#22C55E;font-weight:600;margin-top:3px;">Good ✓</div>
+            </div>
+            <div style="text-align:center;cursor:pointer;">
+              <div style="font-size:1.75rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,0.05);">🤩</div>
+              <div style="font-size:0.5625rem;color:#55556A;margin-top:3px;">Great</div>
+            </div>
+          </div>
+
+          <!-- Energy level -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:0.75rem;color:#8888A8;margin-bottom:8px;">Energy level</div>
+            <div style="display:flex;gap:4px;">
+              <div style="flex:1;height:8px;border-radius:999px;background:linear-gradient(90deg,#F97316,#EF4444);"></div>
+              <div style="flex:1;height:8px;border-radius:999px;background:linear-gradient(90deg,#F97316,#EF4444);"></div>
+              <div style="flex:1;height:8px;border-radius:999px;background:linear-gradient(90deg,#F97316,#EF4444);"></div>
+              <div style="flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,0.1);"></div>
+              <div style="flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,0.1);"></div>
+            </div>
+            <div style="font-size:0.6875rem;color:#8888A8;margin-top:4px;">3 / 5 · Moderate</div>
+          </div>
+
+          <!-- Feeling tags -->
+          <div style="font-size:0.75rem;color:#8888A8;margin-bottom:8px;">What's contributing?</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <div style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:999px;padding:5px 12px;font-size:0.75rem;color:#22C55E;font-weight:500;">😴 Good sleep</div>
+            <div style="background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.25);border-radius:999px;padding:5px 12px;font-size:0.75rem;color:#4F9CF9;font-weight:500;">🏃 Exercise</div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:5px 12px;font-size:0.75rem;color:#8888A8;">😤 Work stress</div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:5px 12px;font-size:0.75rem;color:#8888A8;">🍕 Food</div>
+            <div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:999px;padding:5px 12px;font-size:0.75rem;color:#F59E0B;font-weight:500;">☀️ Weather</div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:999px;padding:5px 12px;font-size:0.75rem;color:#4F9CF9;">+ Add</div>
+          </div>
+
+          <!-- Quick note -->
+          <div style="margin-top:12px;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+            <div style="font-size:0.8125rem;color:#55556A;">Add a note... (optional)</div>
+          </div>
+
+          <div style="margin-top:12px;height:44px;border-radius:14px;background:linear-gradient(135deg,#F59E0B,#F97316);display:flex;align-items:center;justify-content:center;font-size:0.875rem;font-weight:700;color:white;">Log Mood</div>
+        </div>
+
+        <!-- Mood history -->
+        <div class="sec-head"><span class="sec-title">7-Day Mood</span></div>
+        <div class="card" style="margin:0 16px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;height:60px;margin-bottom:8px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:36px;width:28px;border-radius:8px;background:linear-gradient(180deg,#F59E0B,#F97316);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;"><span style="font-size:0.75rem;">😊</span></div><span style="font-size:0.5625rem;color:#55556A;">Mon</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:48px;width:28px;border-radius:8px;background:linear-gradient(180deg,#22C55E,#10B981);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;"><span style="font-size:0.75rem;">🤩</span></div><span style="font-size:0.5625rem;color:#55556A;">Tue</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:28px;width:28px;border-radius:8px;background:rgba(245,158,11,0.5);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;"><span style="font-size:0.75rem;">😐</span></div><span style="font-size:0.5625rem;color:#55556A;">Wed</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:36px;width:28px;border-radius:8px;background:linear-gradient(180deg,#F59E0B,#F97316);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;"><span style="font-size:0.75rem;">😊</span></div><span style="font-size:0.5625rem;color:#55556A;">Thu</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:20px;width:28px;border-radius:8px;background:rgba(239,68,68,0.4);display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;"><span style="font-size:0.6875rem;">😕</span></div><span style="font-size:0.5625rem;color:#55556A;">Fri</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:44px;width:28px;border-radius:8px;background:linear-gradient(180deg,#22C55E,#10B981);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;"><span style="font-size:0.75rem;">😊</span></div><span style="font-size:0.5625rem;color:#55556A;">Sat</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:36px;width:28px;border-radius:8px;background:linear-gradient(180deg,#F59E0B,#F97316);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;border:2px solid rgba(245,158,11,0.5);"><span style="font-size:0.75rem;">😊</span></div><span style="font-size:0.5625rem;color:#F59E0B;font-weight:600;">Sun</span></div>
+          </div>
+          <div style="font-size:0.75rem;color:#8888A8;text-align:center;">Average mood: <strong style="color:#F59E0B;">Good · 3.8/5</strong></div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>Workouts</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg><span>Care</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><span>Profile</span></div>
+      </div>
+    </div></div>
+    <span class="screen-label">Mood Journal</span>
+  </div>
+
+</div>
+</body>
+</html>
