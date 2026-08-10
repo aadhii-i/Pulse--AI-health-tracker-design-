@@ -1,1 +1,2 @@
 - improve naming @ 2026-08-09T13:23:25+05:30
+- fix edge case in parser @ 2026-08-10T13:01:21+05:30
