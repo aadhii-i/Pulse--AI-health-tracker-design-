@@ -1,2 +1,3 @@
 - improve naming @ 2026-03-01T09:05:59+05:30
 - tweak config @ 2026-03-06T17:27:29+05:30
+- minor style fixes @ 2026-08-24T11:51:08+05:30
