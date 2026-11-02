@@ -2,3 +2,4 @@
 - fix edge case in parser @ 2026-08-10T13:01:21+05:30
 - add test coverage @ 2026-10-08T18:44:53+05:30
 - cleanup unused imports @ 2026-10-13T17:24:06+05:30
+- handle null input @ 2026-11-02T07:55:04+05:30
